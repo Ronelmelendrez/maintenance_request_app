@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { AdminDashboard } from "../components/admin/AdminDashboard";
 import { LoginForm } from "../components/auth/LoginForm";
 import { SplashScreen } from "../components/auth/SplashScreen";
 import { BottomNavigation } from "../components/common/BottomNavigation";
@@ -163,6 +164,11 @@ export default function MaintenanceApp() {
         />
       </View>
     );
+  }
+
+  // Admin Dashboard
+  if (currentPage === "admin-dashboard") {
+    return <AdminDashboard onNavigate={(tab) => console.log("Navigate to:", tab)} />;
   }
 
   return null;

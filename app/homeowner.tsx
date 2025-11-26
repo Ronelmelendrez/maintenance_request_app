@@ -118,6 +118,7 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
               </Text>
               <Text style={styles.bannerSubtitle}>Need Help?</Text>
               <Text style={styles.bannerQuick}>QUICK SERVICE</Text>
+              <Text style={styles.bannerTextIssue}>Report an Issue</Text>
               <Button
                 title="Submit Request"
                 onPress={() => setCurrentPage("submit-request")}
@@ -654,11 +655,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   heroBanner: {
-    marginVertical: spacing.xl,
-    height: 400,
+    minHeight: 350,
     width: "100%",
     alignSelf: "stretch",
-    borderRadius: borderRadius.lg,
     backgroundColor: colors.secondary,
     overflow: "hidden",
   },
@@ -674,21 +673,27 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   bannerTitle: {
-    fontSize: 16,
+    fontSize: 23,
     fontWeight: "bold",
     color: colors.white,
     textAlign: "center",
-    letterSpacing: 2,
-    marginBottom: spacing.sm,
+    marginBottom: 14,
   },
   bannerSubtitle: {
-    fontSize: 14,
+    fontStyle: "italic",
+    fontSize: 16,
     color: colors.white,
-    marginBottom: 4,
+    marginBottom: 8,
   },
   bannerQuick: {
     fontSize: 24,
     fontWeight: "bold",
+    color: colors.category.electrical,
+    letterSpacing: 2,
+    marginBottom: 7,
+  },
+  bannerTextIssue: {
+    fontSize: 15,
     color: colors.category.electrical,
     letterSpacing: 2,
     marginBottom: spacing.lg,

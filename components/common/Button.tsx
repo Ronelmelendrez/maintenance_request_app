@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
-import { borderRadius, colors, spacing } from "../../config/theme";
+import { colors, spacing } from "../../config/theme";
 
 interface ButtonProps {
   title: string;
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.xxxl,
-    borderRadius: borderRadius.round,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },

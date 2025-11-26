@@ -165,6 +165,72 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     );
   }
 
+  // Admin Notifications Page
+  if (currentPage === "admin-notifications") {
+    const notifications = [
+      { text: "Completed Request Unit 9B", time: "Just now" },
+      { text: "Completed Request Unit 8E", time: "1 hr ago" },
+      { text: "Technician Assigned (Plumbing)", time: "2 hrs ago" },
+      { text: "Technician Assigned (Electrical)", time: "4 hrs ago" },
+      { text: "Completed Request Unit 10C", time: "1 day ago" },
+      { text: "Technician Assigned (Electrical)", time: "2 days ago" },
+    ];
+    return (
+      <View style={styles.dashboardContainer}>
+        {/* Header */}
+        <View style={styles.adminNotificationHeader}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
+          <View style={styles.adminNotificationHeaderContent}>
+            <Text style={styles.notificationTitle}>Notification</Text>
+            <Text style={styles.notificationDate}>
+              Tuesday, January 14, 2025
+            </Text>
+          </View>
+          <View style={styles.smallProfilePic}>
+            <Image
+              source={{
+                uri: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rica",
+              }}
+              style={styles.profileImage}
+            />
+          </View>
+        </View>
+        {/* Notifications List */}
+        <ScrollView style={styles.adminNotificationsList}>
+          {notifications.map((notif, idx) => (
+            <View key={idx} style={styles.adminNotificationCard}>
+              <Text style={styles.adminNotificationText}>{notif.text}</Text>
+              <Text style={styles.notificationTime}>{notif.time}</Text>
+            </View>
+          ))}
+        </ScrollView>
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.navIcon}>🏠</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navButton}>
+            <Text style={styles.navIcon}>📄</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => setCurrentPage("admin-notifications")}
+          >
+            <Text style={styles.navIcon}>🔔</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   // Admin Dashboard
   if (currentPage === "admin-dashboard") {
     return (
@@ -426,6 +492,65 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
 
 const styles = StyleSheet.create({
   // ...existing code...
+  adminNotificationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  adminNotificationHeaderContent: {
+    flex: 1,
+  },
+  smallProfilePic: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: "hidden",
+    marginLeft: 8,
+  },
+  adminNotificationsList: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#f5f5f5",
+  },
+  adminNotificationCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: "white",
+    borderRadius: 8,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  adminNotificationText: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "500",
+  },
+  notificationTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  notificationDate: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 2,
+  },
+  notificationTime: {
+    fontSize: 12,
+    color: "#888",
+    marginLeft: 12,
+  },
   submitHeader: {
     flexDirection: "row",
     alignItems: "center",

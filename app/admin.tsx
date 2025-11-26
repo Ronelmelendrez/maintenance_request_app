@@ -10,6 +10,7 @@ interface AdminAppProps {
 import React, { useState } from "react";
 import {
   Image,
+  ImageBackground,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -385,44 +386,62 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
           style={styles.adminContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Dashboard Overview Section */}
-          <View style={styles.overviewSection}>
-            <View style={styles.overviewBanner}>
-              <Text style={styles.overviewTitle}>Dashboard Overview</Text>
-            </View>
+          {/* Dashboard Overview Section with Background Image */}
+          <View style={styles.overviewContainer}>
+            <ImageBackground
+              source={{
+                uri: "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+              }}
+              style={styles.overviewBackground}
+              resizeMode="cover"
+            >
+              <View style={styles.overlay} />
+              <View style={styles.overviewContent}>
+                {/* Blue Banner */}
+                <View style={styles.overviewBanner}>
+                  <Text style={styles.overviewTitle}>Dashboard Overview</Text>
+                </View>
 
-            {/* Stats Grid */}
-            <View style={styles.statsGrid}>
-              <View style={[styles.statCard, { backgroundColor: "#93c5fd" }]}>
-                <Text style={styles.statNumber}>12</Text>
-                <Text style={styles.statLabel}>Total Requests</Text>
-                <Text style={styles.statSubtext}>Last 3 days</Text>
+                {/* Stats Grid - 4 cards in 2x2 layout */}
+                <View style={styles.statsGrid}>
+                  <View
+                    style={[styles.statCard, { backgroundColor: "#93c5fd" }]}
+                  >
+                    <Text style={styles.statNumber}>12</Text>
+                    <Text style={styles.statLabel}>Total Requests</Text>
+                    <Text style={styles.statSubtext}>Last 3 days</Text>
+                  </View>
+                  <View
+                    style={[styles.statCard, { backgroundColor: "#fbbf24" }]}
+                  >
+                    <Text style={styles.statNumber}>8</Text>
+                    <Text style={styles.statLabel}>Pending</Text>
+                    <Text style={styles.statSubtext}>Needs attention</Text>
+                  </View>
+                  <View
+                    style={[styles.statCard, { backgroundColor: "#86efac" }]}
+                  >
+                    <Text style={styles.statNumber}>8</Text>
+                    <Text style={styles.statLabel}>Completed</Text>
+                    <Text style={styles.statSubtext}>This week</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statCard,
+                      {
+                        backgroundColor: "#fff",
+                        borderWidth: 1,
+                        borderColor: "#e5e7eb",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.statNumber}>10</Text>
+                    <Text style={styles.statLabel}>In progress</Text>
+                    <Text style={styles.statSubtext}>Notification</Text>
+                  </View>
+                </View>
               </View>
-              <View style={[styles.statCard, { backgroundColor: "#fbbf24" }]}>
-                <Text style={styles.statNumber}>8</Text>
-                <Text style={styles.statLabel}>Pending</Text>
-                <Text style={styles.statSubtext}>Needs attention</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: "#86efac" }]}>
-                <Text style={styles.statNumber}>8</Text>
-                <Text style={styles.statLabel}>Completed</Text>
-                <Text style={styles.statSubtext}>This week</Text>
-              </View>
-              <View
-                style={[
-                  styles.statCard,
-                  {
-                    backgroundColor: "#fff",
-                    borderWidth: 1,
-                    borderColor: "#e5e7eb",
-                  },
-                ]}
-              >
-                <Text style={styles.statNumber}>10</Text>
-                <Text style={styles.statLabel}>In progress</Text>
-                <Text style={styles.statSubtext}>Notification</Text>
-              </View>
-            </View>
+            </ImageBackground>
           </View>
 
           {/* Weekly Progress Chart */}
@@ -640,6 +659,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
+    marginTop: 8,
   },
   adminHeaderText: {
     flex: 1,
@@ -683,9 +703,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
+    marginTop: 8,
   },
   headerSpacer: {
-    width: 40, // Same as back button width for balance
+    width: 40,
   },
   adminNotificationHeader: {
     flexDirection: "row",
@@ -697,6 +718,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
+    marginTop: 8,
   },
   adminNotificationHeaderContent: {
     flex: 1,
@@ -745,15 +767,32 @@ const styles = StyleSheet.create({
   adminContent: {
     flex: 1,
   },
-  overviewSection: {
-    margin: 16,
+  // Dashboard Overview with Image Background
+  overviewContainer: {
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  overviewBackground: {
+    width: "100%",
+    minHeight: 350,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+  },
+  overviewContent: {
+    padding: 20,
   },
   overviewBanner: {
-    backgroundColor: "#2563eb",
-    paddingVertical: 24,
+    paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+    alignSelf: "flex-start",
   },
   overviewTitle: {
     fontSize: 18,
@@ -764,39 +803,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    gap: 12,
   },
   statCard: {
     width: "48%",
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
-    alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   statNumber: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#1f2937",
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
     color: "#1f2937",
     marginBottom: 4,
-    textAlign: "center",
   },
   statSubtext: {
-    fontSize: 10,
+    fontSize: 12,
     color: "#4b5563",
-    textAlign: "center",
   },
   chartSection: {
-    margin: 16,
+    margin: 8,
     backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
@@ -840,7 +877,7 @@ const styles = StyleSheet.create({
     color: "#6b7280",
   },
   performanceSection: {
-    margin: 16,
+    margin: 8,
     backgroundColor: "white",
     borderRadius: 16,
     padding: 16,

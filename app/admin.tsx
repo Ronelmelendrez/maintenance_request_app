@@ -1,12 +1,3 @@
-type AdminPageType =
-  | "admin-dashboard"
-  | "admin-profile"
-  | "admin-notifications";
-
-interface AdminAppProps {
-  onLogout: () => void;
-}
-
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import {
@@ -25,6 +16,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Line, Polyline, Text as SvgText } from "react-native-svg";
+
+type AdminPageType =
+  | "admin-dashboard"
+  | "admin-profile"
+  | "admin-notifications";
+
+interface AdminAppProps {
+  onLogout: () => void;
+}
 
 export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
   const [currentPage, setCurrentPage] = useState<
@@ -217,7 +217,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
 
   // Function to handle image upload
   const handleImageUpload = async () => {
-    // Request permission
     if (Platform.OS !== "web") {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -230,7 +229,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
       }
     }
 
-    // Launch image picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -246,7 +244,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
 
   // Function to take photo with camera
   const handleTakePhoto = async () => {
-    // Request camera permission
     if (Platform.OS !== "web") {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
@@ -258,7 +255,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
       }
     }
 
-    // Launch camera
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [1, 1],
@@ -354,17 +350,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     setCompletionNotes("");
     setSelectedRequest(null);
     Alert.alert("Success", "Request marked as completed");
-  };
-
-  // Function to close all modals and reset states
-  const closeAllModals = () => {
-    setShowRequestDetailModal(false);
-    setShowAssignTechnicianModal(false);
-    setShowCompleteRequestModal(false);
-    setSelectedRequest(null);
-    setTechnicianName("");
-    setTechnicianNotes("");
-    setCompletionNotes("");
   };
 
   // Request Modal Component
@@ -596,7 +581,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
                 )}
 
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.closeButton]}
+                  style={[styles.actionButton, styles.cancelActionButton]}
                   onPress={onClose}
                 >
                   <Text style={styles.actionButtonText}>Close</Text>
@@ -653,7 +638,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
 
             <View style={styles.assignButtons}>
               <TouchableOpacity
-                style={[styles.actionButton, styles.cancelButton]}
+                style={[styles.actionButton, styles.cancelActionButton]}
                 onPress={onClose}
               >
                 <Text style={styles.actionButtonText}>Cancel</Text>
@@ -707,7 +692,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
 
             <View style={styles.completeButtons}>
               <TouchableOpacity
-                style={[styles.actionButton, styles.cancelButton]}
+                style={[styles.actionButton, styles.cancelActionButton]}
                 onPress={onClose}
               >
                 <Text style={styles.actionButtonText}>Cancel</Text>
@@ -725,17 +710,22 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     </Modal>
   );
 
-  // Admin Dashboard
-  if (currentPage === "admin-dashboard") {
+  // Maintenance Requests Page
+  if (currentPage === "maintenance-requests") {
     return (
       <SafeAreaView style={styles.dashboardContainer}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         {/* Header */}
         <View style={styles.adminHeader}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
           <View style={styles.adminHeaderText}>
-            <Text style={styles.welcomeBack}>Welcome back,</Text>
-            <Text style={styles.adminName}>Admin Rica!</Text>
-            <Text style={styles.dateText}>Tuesday, January 14, 2025</Text>
+            <Text style={styles.adminName}>Maintenance Requests</Text>
+            <Text style={styles.dateText}>All maintenance tasks</Text>
           </View>
           <TouchableOpacity
             style={styles.profilePic}
@@ -748,257 +738,87 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          style={styles.adminContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Dashboard Overview Section with Background Image */}
-          <View style={styles.overviewContainer}>
-            <ImageBackground
-              source={require("../assets/images/camella.jpeg")}
-              style={styles.overviewBackground}
-              resizeMode="cover"
-            >
-              <View style={styles.overlay} />
-              <View style={styles.overviewContent}>
-                {/* Banner */}
-                <View style={styles.overviewBanner}>
-                  <Text style={styles.overviewTitle}>Dashboard Overview</Text>
-                </View>
-
-                {/* Stats Grid - 4 cards in 2x2 layout */}
-                <View style={styles.statsGrid}>
-                  <TouchableOpacity
-                    style={[styles.statCard, { backgroundColor: "#93c5fd" }]}
-                    onPress={() => setShowRequestsModal(true)}
-                  >
-                    <Text style={styles.statNumber}>{allRequests.length}</Text>
-                    <Text style={styles.statLabel}>Total Requests</Text>
-                    <Text style={styles.statSubtext}>Last 3 days</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.statCard, { backgroundColor: "#fbbf24" }]}
-                    onPress={() => setShowPendingModal(true)}
-                  >
-                    <Text style={styles.statNumber}>
-                      {pendingRequests.length}
-                    </Text>
-                    <Text style={styles.statLabel}>Pending</Text>
-                    <Text style={styles.statSubtext}>Needs attention</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.statCard, { backgroundColor: "#86efac" }]}
-                    onPress={() => setShowCompletedModal(true)}
-                  >
-                    <Text style={styles.statNumber}>
-                      {completedRequests.length}
-                    </Text>
-                    <Text style={styles.statLabel}>Completed</Text>
-                    <Text style={styles.statSubtext}>This week</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.statCard,
-                      {
-                        backgroundColor: "#fff",
-                        borderWidth: 1,
-                        borderColor: "#e5e7eb",
-                      },
-                    ]}
-                    onPress={() => setShowInProgressModal(true)}
-                  >
-                    <Text style={styles.statNumber}>
-                      {inProgressRequests.length}
-                    </Text>
-                    <Text style={styles.statLabel}>In progress</Text>
-                    <Text style={styles.statSubtext}>Notification</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ImageBackground>
-          </View>
-
-          {/* Weekly Progress Chart */}
-          <View style={styles.chartSection}>
-            <Text style={styles.chartTitle}>Weekly Progress</Text>
-            <View style={styles.chartContainer}>
-              <Svg width={300} height={180} style={styles.chart}>
-                {/* Grid lines */}
-                <Line
-                  x1="30"
-                  y1="140"
-                  x2="280"
-                  y2="140"
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="30"
-                  y1="110"
-                  x2="280"
-                  y2="110"
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="30"
-                  y1="80"
-                  x2="280"
-                  y2="80"
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="30"
-                  y1="50"
-                  x2="280"
-                  y2="50"
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="30"
-                  y1="20"
-                  x2="280"
-                  y2="20"
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                />
-
-                {/* Y-axis labels */}
-                <SvgText x="20" y="145" fontSize="10" fill="#999">
-                  0
-                </SvgText>
-                <SvgText x="20" y="115" fontSize="10" fill="#999">
-                  3
-                </SvgText>
-                <SvgText x="20" y="85" fontSize="10" fill="#999">
-                  6
-                </SvgText>
-                <SvgText x="20" y="55" fontSize="10" fill="#999">
-                  9
-                </SvgText>
-
-                {/* Completed line (green) */}
-                <Polyline
-                  points="40,120 70,100 100,85 130,70 160,80 190,65 220,55 250,45"
-                  fill="none"
-                  stroke="#86efac"
-                  strokeWidth="2"
-                />
-
-                {/* Pending line (orange) */}
-                <Polyline
-                  points="40,130 70,115 100,105 130,95 160,100 190,90 220,95 250,85"
-                  fill="none"
-                  stroke="#fbbf24"
-                  strokeWidth="2"
-                />
-
-                {/* X-axis labels */}
-                <SvgText x="35" y="160" fontSize="9" fill="#666">
-                  Mon
-                </SvgText>
-                <SvgText x="65" y="160" fontSize="9" fill="#666">
-                  Tue
-                </SvgText>
-                <SvgText x="95" y="160" fontSize="9" fill="#666">
-                  Wed
-                </SvgText>
-                <SvgText x="125" y="160" fontSize="9" fill="#666">
-                  Thu
-                </SvgText>
-                <SvgText x="160" y="160" fontSize="9" fill="#666">
-                  Fri
-                </SvgText>
-                <SvgText x="190" y="160" fontSize="9" fill="#666">
-                  Sat
-                </SvgText>
-                <SvgText x="215" y="160" fontSize="9" fill="#666">
-                  Sun
-                </SvgText>
-                <SvgText x="245" y="160" fontSize="9" fill="#666">
-                  Mon
-                </SvgText>
-              </Svg>
-              {/* Legend */}
-              <View style={styles.chartLegend}>
-                <View style={styles.legendItem}>
-                  <View
-                    style={[styles.legendDot, { backgroundColor: "#86efac" }]}
-                  />
-                  <Text style={styles.legendText}>Completed</Text>
-                </View>
-                <View style={styles.legendItem}>
-                  <View
-                    style={[styles.legendDot, { backgroundColor: "#fbbf24" }]}
-                  />
-                  <Text style={styles.legendText}>Pending</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Performance Summary */}
-          <View style={styles.performanceSection}>
-            <Text style={styles.performanceTitle}>Performance Summary</Text>
-            <View style={styles.performanceGrid}>
-              <View style={styles.performanceCard}>
-                <Text style={styles.performanceIcon}>⏱️</Text>
-                <Text style={styles.performanceValue}>2-3hrs</Text>
-                <Text style={styles.performanceLabel}>
-                  Average Response Time
-                </Text>
-              </View>
-              <View style={styles.performanceCard}>
-                <Text style={styles.performanceIcon}>📋</Text>
-                <Text style={styles.performanceValue}>10</Text>
-                <Text style={styles.performanceLabel}>
-                  Tasks completed this week
-                </Text>
-              </View>
-              <View style={styles.performanceCard}>
-                <Text style={styles.performanceIcon}>👷</Text>
-                <Text style={styles.performanceValue}>5</Text>
-                <Text style={styles.performanceLabel}>Technician Active</Text>
-              </View>
-            </View>
+        <ScrollView style={styles.adminContent}>
+          {/* Stats Overview */}
+          <View style={styles.statsOverview}>
             <TouchableOpacity
-              style={styles.taskButton}
-              onPress={() => setCurrentPage("maintenance-requests")}
+              style={[styles.statCard, { backgroundColor: "#fbbf24" }]}
+              onPress={() => setShowPendingModal(true)}
             >
-              <Text style={styles.taskButtonText}>View All Tasks</Text>
+              <Text style={styles.statNumber}>{pendingRequests.length}</Text>
+              <Text style={styles.statLabel}>Pending</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.statCard, { backgroundColor: "#93c5fd" }]}
+              onPress={() => setShowInProgressModal(true)}
+            >
+              <Text style={styles.statNumber}>{inProgressRequests.length}</Text>
+              <Text style={styles.statLabel}>In Progress</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.statCard, { backgroundColor: "#86efac" }]}
+              onPress={() => setShowCompletedModal(true)}
+            >
+              <Text style={styles.statNumber}>{completedRequests.length}</Text>
+              <Text style={styles.statLabel}>Completed</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Requests Table */}
+          <View style={styles.tableContainer}>
+            <View style={styles.tableHeader}>
+              <Text style={styles.tableHeaderCell}>Request ID</Text>
+              <Text style={styles.tableHeaderCell}>Type</Text>
+              <Text style={styles.tableHeaderCell}>Status</Text>
+              <Text style={styles.tableHeaderCell}>Priority</Text>
+            </View>
+
+            <ScrollView style={styles.tableBody}>
+              {allRequests.map((request, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.tableRow}
+                  onPress={() => handleRequestClick(request)}
+                >
+                  <View style={styles.tableCell}>
+                    <Text style={styles.requestIdText}>{request.id}</Text>
+                    <Text style={styles.unitText}>{request.unit}</Text>
+                  </View>
+                  <View style={styles.tableCell}>
+                    <Text style={styles.typeText}>{request.type}</Text>
+                  </View>
+                  <View style={styles.tableCell}>
+                    <Text
+                      style={[
+                        styles.statusBadge2,
+                        getStatusStyle(request.status),
+                      ]}
+                    >
+                      {getStatusText(request.status)}
+                    </Text>
+                  </View>
+                  <View style={styles.tableCell}>
+                    <Text
+                      style={[
+                        styles.statusBadge2,
+                        getPriorityStyle(request.priority),
+                      ]}
+                    >
+                      {request.priority}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         </ScrollView>
 
-        {/* Request Modals */}
-        <RequestModal
-          visible={showRequestsModal}
-          onClose={() => setShowRequestsModal(false)}
-          title={`All Requests (${allRequests.length})`}
-          requests={allRequests}
-          showStatus={true}
-          clickable={true}
-        />
-
+        {/* Modals */}
         <RequestModal
           visible={showPendingModal}
           onClose={() => setShowPendingModal(false)}
           title={`Pending Requests (${pendingRequests.length})`}
           requests={pendingRequests}
-          showStatus={true}
-          clickable={true}
-        />
-
-        <RequestModal
-          visible={showCompletedModal}
-          onClose={() => setShowCompletedModal(false)}
-          title={`Completed Requests (${completedRequests.length})`}
-          requests={completedRequests}
           showStatus={true}
           clickable={true}
         />
@@ -1012,24 +832,250 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
           clickable={true}
         />
 
-        {/* Request Detail Modal */}
+        <RequestModal
+          visible={showCompletedModal}
+          onClose={() => setShowCompletedModal(false)}
+          title={`Completed Requests (${completedRequests.length})`}
+          requests={completedRequests}
+          showStatus={true}
+          clickable={true}
+        />
+
         <RequestDetailModal
           visible={showRequestDetailModal}
           onClose={() => setShowRequestDetailModal(false)}
           request={selectedRequest}
         />
 
-        {/* Assign Technician Modal */}
         <AssignTechnicianModal
           visible={showAssignTechnicianModal}
           onClose={() => setShowAssignTechnicianModal(false)}
         />
 
-        {/* Complete Request Modal */}
         <CompleteRequestModal
           visible={showCompleteRequestModal}
           onClose={() => setShowCompleteRequestModal(false)}
         />
+
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.navIcon}>🏠</Text>
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.navButton, styles.activeNavButton]}
+            onPress={() => setCurrentPage("maintenance-requests")}
+          >
+            <Text style={styles.navIcon}>📄</Text>
+            <Text style={styles.navText}>Tasks</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => setCurrentPage("admin-notifications")}
+          >
+            <Text style={styles.navIcon}>🔔</Text>
+            <Text style={styles.navText}>Alerts</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Admin Notifications Page
+  if (currentPage === "admin-notifications") {
+    return (
+      <SafeAreaView style={styles.dashboardContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        {/* Header */}
+        <View style={styles.adminNotificationHeader}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
+          <View style={styles.adminNotificationHeaderContent}>
+            <Text style={styles.notificationTitle}>Notifications</Text>
+            <Text style={styles.notificationDate}>
+              Tuesday, January 14, 2025
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.smallProfilePic}
+            onPress={() => setCurrentPage("admin-profile")}
+          >
+            <Image
+              source={getProfileImageSource()}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView style={styles.adminNotificationsList}>
+          <View style={styles.adminNotificationCard}>
+            <Text style={styles.adminNotificationText}>
+              New maintenance request submitted for Unit 12A
+            </Text>
+            <Text style={styles.notificationTime}>Just now</Text>
+          </View>
+
+          <View style={styles.adminNotificationCard}>
+            <Text style={styles.adminNotificationText}>
+              Request REQ-2025-0003 has been completed
+            </Text>
+            <Text style={styles.notificationTime}>1 hr ago</Text>
+          </View>
+
+          <View style={styles.adminNotificationCard}>
+            <Text style={styles.adminNotificationText}>
+              Technician assigned to plumbing issue in Unit 7C
+            </Text>
+            <Text style={styles.notificationTime}>2 hrs ago</Text>
+          </View>
+
+          <View style={styles.adminNotificationCard}>
+            <Text style={styles.adminNotificationText}>
+              High priority request requires attention in Unit 9B
+            </Text>
+            <Text style={styles.notificationTime}>4 hrs ago</Text>
+          </View>
+
+          <View style={styles.adminNotificationCard}>
+            <Text style={styles.adminNotificationText}>
+              Weekly maintenance report is ready
+            </Text>
+            <Text style={styles.notificationTime}>1 day ago</Text>
+          </View>
+
+          <View style={styles.adminNotificationCard}>
+            <Text style={styles.adminNotificationText}>
+              System maintenance scheduled for tomorrow
+            </Text>
+            <Text style={styles.notificationTime}>2 days ago</Text>
+          </View>
+        </ScrollView>
+
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.navIcon}>🏠</Text>
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => setCurrentPage("maintenance-requests")}
+          >
+            <Text style={styles.navIcon}>📄</Text>
+            <Text style={styles.navText}>Tasks</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.navButton, styles.activeNavButton]}
+            onPress={() => setCurrentPage("admin-notifications")}
+          >
+            <Text style={styles.navIcon}>🔔</Text>
+            <Text style={styles.navText}>Alerts</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Admin Profile Page
+  if (currentPage === "admin-profile") {
+    return (
+      <SafeAreaView style={styles.dashboardContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        {/* Header */}
+        <View style={styles.adminNotificationHeader}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setCurrentPage("admin-dashboard")}
+          >
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
+          <View style={styles.adminNotificationHeaderContent}>
+            <Text style={styles.notificationTitle}>Profile</Text>
+            <Text style={styles.notificationDate}>Admin Account</Text>
+          </View>
+          <View style={styles.headerSpacer} />
+        </View>
+
+        <ScrollView style={styles.profileContainer}>
+          {/* Profile Avatar Section */}
+          <View style={styles.profileAvatarSection}>
+            <TouchableOpacity
+              style={styles.avatarContainer}
+              onPress={handleEditAvatar}
+            >
+              <Image
+                source={getProfileImageSource()}
+                style={styles.profileAvatarLarge}
+              />
+              <View style={styles.editAvatarButton}>
+                <Text style={styles.editAvatarIcon}>📷</Text>
+              </View>
+            </TouchableOpacity>
+            <Text style={styles.profileRole}>Administrator</Text>
+          </View>
+
+          {/* Profile Info Card */}
+          <View style={styles.profileCard}>
+            <View style={styles.profileField}>
+              <Text style={styles.profileFieldLabel}>Name</Text>
+              <View style={styles.profileFieldValue}>
+                <Text style={styles.profileFieldValueText}>Rica Garcia</Text>
+              </View>
+            </View>
+
+            <View style={styles.profileField}>
+              <Text style={styles.profileFieldLabel}>Email</Text>
+              <View style={styles.profileFieldValue}>
+                <Text style={styles.profileFieldValueText}>
+                  admin.rica@camella.com
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.profileField}>
+              <Text style={styles.profileFieldLabel}>Position</Text>
+              <View style={styles.profileFieldValue}>
+                <Text style={styles.profileFieldValueText}>
+                  Community Manager
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.profileField}>
+              <Text style={styles.profileFieldLabel}>Phone</Text>
+              <View style={styles.profileFieldValue}>
+                <Text style={styles.profileFieldValueText}>
+                  +63 912 345 6789
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.profileField}>
+              <Text style={styles.profileFieldLabel}>Community</Text>
+              <View style={styles.profileFieldValue}>
+                <Text style={styles.profileFieldValueText}>
+                  Camella Communities
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Logout Button */}
+          <TouchableOpacity style={styles.adminLogoutButton} onPress={onLogout}>
+            <Text style={styles.adminLogoutButtonText}>Log out</Text>
+          </TouchableOpacity>
+        </ScrollView>
 
         {/* Image Options Modal */}
         <Modal
@@ -1068,10 +1114,10 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
               )}
 
               <TouchableOpacity
-                style={[styles.optionButton, styles.cancelButton]}
+                style={[styles.optionButton, styles.cancelOptionButton]}
                 onPress={() => setShowImageOptions(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelOptionButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1105,19 +1151,376 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     );
   }
 
-  // Fallback for any other pages
+  // Admin Dashboard (Default Page)
   return (
     <SafeAreaView style={styles.dashboardContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <Text style={{ marginTop: 100, textAlign: "center", fontSize: 18 }}>
-        Page not found
-      </Text>
-      <TouchableOpacity
-        style={[styles.navButton, { alignSelf: "center", marginTop: 40 }]}
-        onPress={() => setCurrentPage("admin-dashboard")}
+      {/* Header */}
+      <View style={styles.adminHeader}>
+        <View style={styles.adminHeaderText}>
+          <Text style={styles.welcomeBack}>Welcome back,</Text>
+          <Text style={styles.adminName}>Admin Rica!</Text>
+          <Text style={styles.dateText}>Tuesday, January 14, 2025</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.profilePic}
+          onPress={() => setCurrentPage("admin-profile")}
+        >
+          <Image source={getProfileImageSource()} style={styles.profileImage} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        style={styles.adminContent}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.navIcon}>🏠</Text>
-      </TouchableOpacity>
+        {/* Dashboard Overview Section with Background Image */}
+        <View style={styles.overviewContainer}>
+          <ImageBackground
+            source={require("../assets/images/camella.jpeg")}
+            style={styles.overviewBackground}
+            resizeMode="cover"
+          >
+            <View style={styles.overlay} />
+            <View style={styles.overviewContent}>
+              {/* Banner */}
+              <View style={styles.overviewBanner}>
+                <Text style={styles.overviewTitle}>Dashboard Overview</Text>
+              </View>
+
+              {/* Stats Grid - 4 cards in 2x2 layout */}
+              <View style={styles.statsGrid}>
+                <TouchableOpacity
+                  style={[styles.statCard, { backgroundColor: "#93c5fd" }]}
+                  onPress={() => setShowRequestsModal(true)}
+                >
+                  <Text style={styles.statNumber}>{allRequests.length}</Text>
+                  <Text style={styles.statLabel}>Total Requests</Text>
+                  <Text style={styles.statSubtext}>Last 3 days</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.statCard, { backgroundColor: "#fbbf24" }]}
+                  onPress={() => setShowPendingModal(true)}
+                >
+                  <Text style={styles.statNumber}>
+                    {pendingRequests.length}
+                  </Text>
+                  <Text style={styles.statLabel}>Pending</Text>
+                  <Text style={styles.statSubtext}>Needs attention</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.statCard, { backgroundColor: "#86efac" }]}
+                  onPress={() => setShowCompletedModal(true)}
+                >
+                  <Text style={styles.statNumber}>
+                    {completedRequests.length}
+                  </Text>
+                  <Text style={styles.statLabel}>Completed</Text>
+                  <Text style={styles.statSubtext}>This week</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.statCard,
+                    {
+                      backgroundColor: "#fff",
+                      borderWidth: 1,
+                      borderColor: "#e5e7eb",
+                    },
+                  ]}
+                  onPress={() => setShowInProgressModal(true)}
+                >
+                  <Text style={styles.statNumber}>
+                    {inProgressRequests.length}
+                  </Text>
+                  <Text style={styles.statLabel}>In progress</Text>
+                  <Text style={styles.statSubtext}>Notification</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ImageBackground>
+        </View>
+
+        {/* Weekly Progress Chart */}
+        <View style={styles.chartSection}>
+          <Text style={styles.chartTitle}>Weekly Progress</Text>
+          <View style={styles.chartContainer}>
+            <Svg width={300} height={180} style={styles.chart}>
+              {/* Grid lines */}
+              <Line
+                x1="30"
+                y1="140"
+                x2="280"
+                y2="140"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              <Line
+                x1="30"
+                y1="110"
+                x2="280"
+                y2="110"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              <Line
+                x1="30"
+                y1="80"
+                x2="280"
+                y2="80"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              <Line
+                x1="30"
+                y1="50"
+                x2="280"
+                y2="50"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              <Line
+                x1="30"
+                y1="20"
+                x2="280"
+                y2="20"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+
+              {/* Y-axis labels */}
+              <SvgText x="20" y="145" fontSize="10" fill="#999">
+                0
+              </SvgText>
+              <SvgText x="20" y="115" fontSize="10" fill="#999">
+                3
+              </SvgText>
+              <SvgText x="20" y="85" fontSize="10" fill="#999">
+                6
+              </SvgText>
+              <SvgText x="20" y="55" fontSize="10" fill="#999">
+                9
+              </SvgText>
+
+              {/* Completed line (green) */}
+              <Polyline
+                points="40,120 70,100 100,85 130,70 160,80 190,65 220,55 250,45"
+                fill="none"
+                stroke="#86efac"
+                strokeWidth="2"
+              />
+
+              {/* Pending line (orange) */}
+              <Polyline
+                points="40,130 70,115 100,105 130,95 160,100 190,90 220,95 250,85"
+                fill="none"
+                stroke="#fbbf24"
+                strokeWidth="2"
+              />
+
+              {/* X-axis labels */}
+              <SvgText x="35" y="160" fontSize="9" fill="#666">
+                Mon
+              </SvgText>
+              <SvgText x="65" y="160" fontSize="9" fill="#666">
+                Tue
+              </SvgText>
+              <SvgText x="95" y="160" fontSize="9" fill="#666">
+                Wed
+              </SvgText>
+              <SvgText x="125" y="160" fontSize="9" fill="#666">
+                Thu
+              </SvgText>
+              <SvgText x="160" y="160" fontSize="9" fill="#666">
+                Fri
+              </SvgText>
+              <SvgText x="190" y="160" fontSize="9" fill="#666">
+                Sat
+              </SvgText>
+              <SvgText x="215" y="160" fontSize="9" fill="#666">
+                Sun
+              </SvgText>
+              <SvgText x="245" y="160" fontSize="9" fill="#666">
+                Mon
+              </SvgText>
+            </Svg>
+            {/* Legend */}
+            <View style={styles.chartLegend}>
+              <View style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: "#86efac" }]}
+                />
+                <Text style={styles.legendText}>Completed</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: "#fbbf24" }]}
+                />
+                <Text style={styles.legendText}>Pending</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Performance Summary */}
+        <View style={styles.performanceSection}>
+          <Text style={styles.performanceTitle}>Performance Summary</Text>
+          <View style={styles.performanceGrid}>
+            <View style={styles.performanceCard}>
+              <Text style={styles.performanceIcon}>⏱️</Text>
+              <Text style={styles.performanceValue}>2-3hrs</Text>
+              <Text style={styles.performanceLabel}>Average Response Time</Text>
+            </View>
+            <View style={styles.performanceCard}>
+              <Text style={styles.performanceIcon}>📋</Text>
+              <Text style={styles.performanceValue}>10</Text>
+              <Text style={styles.performanceLabel}>
+                Tasks completed this week
+              </Text>
+            </View>
+            <View style={styles.performanceCard}>
+              <Text style={styles.performanceIcon}>👷</Text>
+              <Text style={styles.performanceValue}>5</Text>
+              <Text style={styles.performanceLabel}>Technician Active</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.taskButton}
+            onPress={() => setCurrentPage("maintenance-requests")}
+          >
+            <Text style={styles.taskButtonText}>View All Tasks</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {/* Request Modals */}
+      <RequestModal
+        visible={showRequestsModal}
+        onClose={() => setShowRequestsModal(false)}
+        title={`All Requests (${allRequests.length})`}
+        requests={allRequests}
+        showStatus={true}
+        clickable={true}
+      />
+
+      <RequestModal
+        visible={showPendingModal}
+        onClose={() => setShowPendingModal(false)}
+        title={`Pending Requests (${pendingRequests.length})`}
+        requests={pendingRequests}
+        showStatus={true}
+        clickable={true}
+      />
+
+      <RequestModal
+        visible={showCompletedModal}
+        onClose={() => setShowCompletedModal(false)}
+        title={`Completed Requests (${completedRequests.length})`}
+        requests={completedRequests}
+        showStatus={true}
+        clickable={true}
+      />
+
+      <RequestModal
+        visible={showInProgressModal}
+        onClose={() => setShowInProgressModal(false)}
+        title={`In Progress Requests (${inProgressRequests.length})`}
+        requests={inProgressRequests}
+        showStatus={true}
+        clickable={true}
+      />
+
+      {/* Request Detail Modal */}
+      <RequestDetailModal
+        visible={showRequestDetailModal}
+        onClose={() => setShowRequestDetailModal(false)}
+        request={selectedRequest}
+      />
+
+      {/* Assign Technician Modal */}
+      <AssignTechnicianModal
+        visible={showAssignTechnicianModal}
+        onClose={() => setShowAssignTechnicianModal(false)}
+      />
+
+      {/* Complete Request Modal */}
+      <CompleteRequestModal
+        visible={showCompleteRequestModal}
+        onClose={() => setShowCompleteRequestModal(false)}
+      />
+
+      {/* Image Options Modal */}
+      <Modal
+        visible={showImageOptions}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowImageOptions(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.imageOptionsModal}>
+            <Text style={styles.modalTitle}>Change Profile Photo</Text>
+
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={handleTakePhoto}
+            >
+              <Text style={styles.optionButtonText}>Take Photo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={handleImageUpload}
+            >
+              <Text style={styles.optionButtonText}>Choose from Library</Text>
+            </TouchableOpacity>
+
+            {profileImage && (
+              <TouchableOpacity
+                style={[styles.optionButton, styles.removeButton]}
+                onPress={handleRemovePhoto}
+              >
+                <Text style={styles.removeButtonText}>
+                  Remove Current Photo
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.optionButton, styles.cancelOptionButton]}
+              onPress={() => setShowImageOptions(false)}
+            >
+              <Text style={styles.cancelOptionButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity
+          style={[styles.navButton, styles.activeNavButton]}
+          onPress={() => setCurrentPage("admin-dashboard")}
+        >
+          <Text style={styles.navIcon}>🏠</Text>
+          <Text style={styles.navText}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => setCurrentPage("maintenance-requests")}
+        >
+          <Text style={styles.navIcon}>📄</Text>
+          <Text style={styles.navText}>Tasks</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => setCurrentPage("admin-notifications")}
+        >
+          <Text style={styles.navIcon}>🔔</Text>
+          <Text style={styles.navText}>Alerts</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -1172,21 +1575,6 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  submitHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-    marginTop: 8,
-  },
-  headerSpacer: {
-    width: 40,
-  },
   adminNotificationHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -1225,12 +1613,8 @@ const styles = StyleSheet.create({
     color: "#374151",
     fontWeight: "bold",
   },
-  submitHeaderTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1f2937",
-    textAlign: "center",
-    flex: 1,
+  headerSpacer: {
+    width: 40,
   },
   notificationTitle: {
     fontSize: 18,
@@ -1282,6 +1666,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    gap: 12,
+  },
+  statsOverview: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
     gap: 12,
   },
   statCard: {
@@ -1443,6 +1833,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flex: 1,
   },
+  activeNavButton: {
+    backgroundColor: "#f0f9ff",
+  },
   navIcon: {
     fontSize: 20,
     marginBottom: 4,
@@ -1474,7 +1867,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9fafb",
   },
   tableHeaderCell: {
-    flex: 1.5,
+    flex: 1,
     fontSize: 12,
     fontWeight: "bold",
     color: "#6b7280",
@@ -1491,7 +1884,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tableCell: {
-    flex: 1.5,
+    flex: 1,
+    justifyContent: "center",
   },
   requestIdText: {
     fontSize: 12,
@@ -1500,10 +1894,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   unitText: {
-    fontSize: 11,
-    color: "#6b7280",
-  },
-  dateText2: {
     fontSize: 11,
     color: "#6b7280",
   },
@@ -1520,6 +1910,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     overflow: "hidden",
     alignSelf: "flex-start",
+    textAlign: "center",
   },
   // Notifications Styles
   adminNotificationsList: {
@@ -1856,7 +2247,7 @@ const styles = StyleSheet.create({
   confirmCompleteButton: {
     backgroundColor: "#10b981",
   },
-  cancelButton: {
+  cancelActionButton: {
     backgroundColor: "#6b7280",
   },
   actionButtonText: {
@@ -1933,7 +2324,14 @@ const styles = StyleSheet.create({
     color: "#dc2626",
     fontWeight: "600",
   },
-  cancelButtonText: {
+  cancelOptionButton: {
+    marginTop: 10,
+    paddingVertical: 16,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 12,
+    borderBottomWidth: 0,
+  },
+  cancelOptionButtonText: {
     fontSize: 16,
     color: "#374151",
     fontWeight: "600",

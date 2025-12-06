@@ -14,11 +14,12 @@ import { Button } from "../../../components/common/Button";
 import { CategoryGrid } from "../../../components/homeowner/CategoryGrid";
 import { RequestCard } from "../../../components/homeowner/RequestCard";
 import { colors } from "../../../config/theme";
-import { MOCK_REQUESTS } from "../../../utils/constants";
+import { User } from "../../../services/authService";
 import styles from "./dashboardStyles";
 
 interface DashboardPageProps {
-  profileImage: string | null;
+  user: User | null;
+  activeRequests: any[];
   showHistoryModal: boolean;
   requestHistory: any[];
   onNavigateToProfile: () => void;
@@ -27,12 +28,14 @@ interface DashboardPageProps {
   onCategoryPress: (category: string) => void;
   onShowHistoryModal: () => void;
   onHideHistoryModal: () => void;
+  onRequestPress: (request: any) => void;
   getStatusStyle: (status: string) => any;
   getStatusText: (status: string) => string;
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
-  profileImage,
+  user,
+  activeRequests,
   showHistoryModal,
   requestHistory,
   onNavigateToProfile,
@@ -41,14 +44,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   onCategoryPress,
   onShowHistoryModal,
   onHideHistoryModal,
+  onRequestPress,
   getStatusStyle,
   getStatusText,
 }) => {
   const getProfileImageSource = () => {
-    if (profileImage) {
-      return { uri: profileImage };
+    if (user?.profile_image) {
+      return { uri: user.profile_image };
     }
-    return { uri: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jerrianne" };
+    return { uri: "https://api.dicebear.com/7.x/avataaars/svg?seed=User" };
+  };
+
+  const getUserName = () => {
+    return user?.name || "User";
   };
 
   return (
@@ -61,8 +69,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <View style={styles.header}>
           <View>
             <Text style={styles.welcomeBack}>Welcome back,</Text>
-            <Text style={styles.userName}>Jerrianne!</Text>
-            <Text style={styles.dateText}>Tuesday, January 14, 2025</Text>
+            <Text style={styles.userName}>{getUserName()}!</Text>
+            <Text style={styles.dateText}>
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
           </View>
           <TouchableOpacity
             style={styles.profilePic}
@@ -101,7 +116,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           <View style={styles.activeRequestsTitle}>
             <Text style={styles.checkIcon}>📋</Text>
             <Text style={styles.activeText}>
-              Active Request ({MOCK_REQUESTS.length})
+              Active Request ({activeRequests.length})
             </Text>
           </View>
           <TouchableOpacity onPress={onShowHistoryModal}>
@@ -111,9 +126,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
         {/* Request Cards */}
         <View style={styles.requestsContainer}>
-          {MOCK_REQUESTS.map((request) => (
-            <RequestCard key={request.id} request={request} />
-          ))}
+          {activeRequests.length > 0 ? (
+            activeRequests.map((request) => (
+              <TouchableOpacity
+                key={request.id}
+                onPress={() => onRequestPress(request)}
+              >
+                <RequestCard request={request} />
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noRequestsText}>No active requests</Text>
+          )}
         </View>
 
         {/* Report Category */}

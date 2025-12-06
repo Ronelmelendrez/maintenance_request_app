@@ -207,6 +207,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.text.tertiary,
   },
+  noRequestsText: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    textAlign: "center",
+    padding: spacing.xl,
+  },
 });
 
 export default styles;

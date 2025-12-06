@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   ScrollView,
@@ -6,49 +6,74 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import { BottomNavigation } from "../../../components/common/BottomNavigation";
+import { User } from "../../../services/authService";
 import styles from "./profileStyles";
 
 interface ProfilePageProps {
-  profileImage: string | null;
+  user: User | null;
   onBack: () => void;
   onNavigateToSubmitRequest: () => void;
   onNavigateToNotifications: () => void;
   onEditAvatar: () => void;
+  onUpdateProfile: (updates: Partial<User>) => Promise<void>;
   onLogout: () => void;
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({
-  profileImage,
+  user,
   onBack,
   onNavigateToSubmitRequest,
   onNavigateToNotifications,
   onEditAvatar,
+  onUpdateProfile,
   onLogout,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("Jerrianne Kent Alejandria");
-  const [email, setEmail] = useState("Jerrianne03@gmail.com");
-  const [address, setAddress] = useState("Butuan City, Philippines");
-  const [phone, setPhone] = useState("09639147380");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
-    setIsEditing(false);
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setAddress(user.address || "");
+      setPhone(user.phone || "");
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      await onUpdateProfile({ name, phone, address });
+      setIsEditing(false);
+    } catch (error) {
+      // Error is handled in parent component
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    setName("Jerrianne Kent Alejandria");
-    setEmail("Jerrianne03@gmail.com");
-    setAddress("Butuan City, Philippines");
-    setPhone("09639147380");
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setAddress(user.address || "");
+      setPhone(user.phone || "");
+    }
     setIsEditing(false);
   };
+
   const getProfileImageSource = () => {
-    if (profileImage) {
-      return { uri: profileImage };
+    if (user?.profile_image) {
+      return { uri: user.profile_image };
     }
-    return { uri: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jerrianne" };
+    return { uri: "https://api.dicebear.com/7.x/avataaars/svg?seed=User" };
   };
 
   return (
@@ -164,8 +189,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           </View>
 
           {isEditing && (
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={handleSave}
+              disabled={loading}
+            >
+              <Text style={styles.saveButtonText}>
+                {loading ? "Saving..." : "Save Changes"}
+              </Text>
             </TouchableOpacity>
           )}
         </View>

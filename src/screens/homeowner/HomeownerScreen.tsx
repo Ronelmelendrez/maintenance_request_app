@@ -1,8 +1,11 @@
 import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Platform, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../config/theme";
+import { authService, User } from "../../services/authService";
+import { requestService } from "../../services/requestService";
+import { messageService } from "../../services/messageService";
 import { ImageOptionsModal } from "./components/ImageOptionsModal";
 import styles from "./homeownerStyles";
 import { ChatPage } from "./pages/ChatPage";
@@ -38,39 +41,12 @@ interface HomeownerAppProps {
 export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
   const [currentPage, setCurrentPage] =
     useState<HomeownerPageType>("dashboard");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      sender: "Homeowner",
-      text: "I submitted a maintenance request for the living room.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jerrianne",
-      isHomeowner: true,
-    },
-    {
-      id: 2,
-      sender: "Admin",
-      text: "I've received your request and will take a look as soon as possible.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
-      isHomeowner: false,
-    },
-    {
-      id: 3,
-      sender: "Homeowner",
-      text: "Thank you!",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jerrianne",
-      isHomeowner: true,
-    },
-    {
-      id: 4,
-      sender: "Admin",
-      text: "I've fixed the issue. Please check if the lights are still flickering.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
-      isHomeowner: false,
-      timestamp: "Delivered on Thursday",
-    },
-  ]);
+  const [user, setUser] = useState<User | null>(null);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [selectedRequestType, setSelectedRequestType] = useState<string>("");
   const [unitNumber, setUnitNumber] = useState<string>("");
@@ -80,77 +56,45 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
 
   // Available maintenance types
   const maintenanceTypes = [
-    "Plumbing/Leaks",
+    "Plumbing",
     "Electrical",
-    "Air Conditioning",
+    "HVAC",
     "Appliances",
-    "General Maintenance",
+    "Structural",
     "Pest Control",
-    "Structural Issues",
     "Landscaping",
-    "Cleaning Services",
-    "Emergency Repair",
+    "Cleaning",
+    "Other",
   ];
 
-  // Mock history data
-  const requestHistory = [
-    {
-      id: "REQ-2025-0012",
-      type: "Plumbing/Leaks",
-      date: "2025-10-25",
-      status: "completed",
-      unit: "Unit 12A",
-      description: "Kitchen sink leaking",
-    },
-    {
-      id: "REQ-2025-0003",
-      type: "Electrical",
-      date: "2025-10-18",
-      status: "completed",
-      unit: "Unit 5A",
-      description: "Living room lights not working",
-    },
-    {
-      id: "REQ-2025-0006",
-      type: "General Maintenance",
-      date: "2025-09-28",
-      status: "completed",
-      unit: "Unit 7C",
-      description: "Door handle repair",
-    },
-    {
-      id: "REQ-2025-0201",
-      type: "Air Conditioning",
-      date: "2025-08-20",
-      status: "completed",
-      unit: "Unit 10C",
-      description: "AC not cooling properly",
-    },
-    {
-      id: "REQ-2025-0101",
-      type: "Pest Control",
-      date: "2025-07-24",
-      status: "completed",
-      unit: "Unit 33H",
-      description: "Ant infestation in kitchen",
-    },
-    {
-      id: "REQ-2025-0040",
-      type: "Appliances",
-      date: "2025-04-15",
-      status: "completed",
-      unit: "Unit 3E",
-      description: "Refrigerator not cooling",
-    },
-    {
-      id: "REQ-2025-0901",
-      type: "Electrical",
-      date: "2025-04-13",
-      status: "completed",
-      unit: "Unit 9B",
-      description: "Power outlet not working",
-    },
-  ];
+  // Load user and requests data
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [userData, requestsData] = await Promise.all([
+        authService.getCurrentUser(),
+        requestService.getAll(),
+      ]);
+      setUser(userData);
+      setRequests(requestsData);
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get completed requests for history
+  const requestHistory = requests.filter((req) => req.status === "completed");
+
+  // Get active requests (pending or in-progress)
+  const activeRequests = requests.filter(
+    (req) => req.status === "pending" || req.status === "in-progress"
+  );
 
   // Helper functions
   const getStatusStyle = (status: string) => {
@@ -192,8 +136,15 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
-      setShowImageOptions(false);
+      const newImageUri = result.assets[0].uri;
+      try {
+        await authService.updateProfile({ profile_image: newImageUri });
+        setUser((prev) => prev ? { ...prev, profile_image: newImageUri } : null);
+        setShowImageOptions(false);
+        Alert.alert("Success", "Profile image updated");
+      } catch (error: any) {
+        Alert.alert("Error", error.message || "Failed to update profile image");
+      }
     }
   };
 
@@ -216,14 +167,27 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
-      setShowImageOptions(false);
+      const newImageUri = result.assets[0].uri;
+      try {
+        await authService.updateProfile({ profile_image: newImageUri });
+        setUser((prev) => prev ? { ...prev, profile_image: newImageUri } : null);
+        setShowImageOptions(false);
+        Alert.alert("Success", "Profile image updated");
+      } catch (error: any) {
+        Alert.alert("Error", error.message || "Failed to update profile image");
+      }
     }
   };
 
-  const handleRemovePhoto = () => {
-    setProfileImage(null);
-    setShowImageOptions(false);
+  const handleRemovePhoto = async () => {
+    try {
+      await authService.updateProfile({ profile_image: null });
+      setUser((prev) => prev ? { ...prev, profile_image: null } : null);
+      setShowImageOptions(false);
+      Alert.alert("Success", "Profile image removed");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to remove profile image");
+    }
   };
 
   // Navigation handlers
@@ -237,21 +201,33 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
     setShowTypeDropdown(false);
   };
 
-  const handleSubmitRequest = () => {
+  const handleSubmitRequest = async () => {
     if (!selectedRequestType || !unitNumber || !description) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
-    console.log("Submitting request:", {
-      type: selectedRequestType,
-      unit: unitNumber,
-      description: description,
-    });
+    try {
+      setLoading(true);
+      const newRequest = await requestService.create({
+        type: selectedRequestType,
+        description: description,
+        unit: unitNumber,
+        address: user?.address || "",
+        priority: "Medium",
+      });
 
-    setUnitNumber("");
-    setDescription("");
-    setCurrentPage("request-detail");
+      setRequests((prev) => [newRequest, ...prev]);
+      setSelectedRequest(newRequest);
+      setUnitNumber("");
+      setDescription("");
+      Alert.alert("Success", "Request submitted successfully");
+      setCurrentPage("request-detail");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to submit request");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -262,17 +238,46 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
     setCurrentPage("dashboard");
   };
 
-  const handleSendMessage = () => {
-    if (messageInput.trim()) {
-      const newMessage: Message = {
-        id: messages.length + 1,
-        sender: "Homeowner",
-        text: messageInput,
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jerrianne",
-        isHomeowner: true,
-      };
-      setMessages([...messages, newMessage]);
+  const handleSendMessage = async () => {
+    if (!messageInput.trim() || !selectedRequest) return;
+
+    try {
+      const newMessage = await messageService.create({
+        request_id: selectedRequest.id,
+        message: messageInput,
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: newMessage.id,
+          sender: user?.name || "Homeowner",
+          text: newMessage.message,
+          avatar: user?.profile_image || "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
+          isHomeowner: true,
+        },
+      ]);
       setMessageInput("");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to send message");
+    }
+  };
+
+  // Load messages for a request
+  const loadMessages = async (requestId: number) => {
+    try {
+      const messagesData = await messageService.getByRequestId(requestId);
+      const formattedMessages = messagesData.map((msg: any) => ({
+        id: msg.id,
+        sender: msg.sender_name,
+        text: msg.message,
+        avatar: msg.sender_avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
+        isHomeowner: msg.sender_role === "homeowner",
+        timestamp: msg.created_at,
+      }));
+      setMessages(formattedMessages);
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to load messages");
     }
   };
 
@@ -282,7 +287,8 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
       case "dashboard":
         return (
           <DashboardPage
-            profileImage={profileImage}
+            user={user}
+            activeRequests={activeRequests}
             showHistoryModal={showHistoryModal}
             requestHistory={requestHistory}
             onNavigateToProfile={() => setCurrentPage("profile")}
@@ -291,6 +297,11 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
             onCategoryPress={handleCategoryPress}
             onShowHistoryModal={() => setShowHistoryModal(true)}
             onHideHistoryModal={() => setShowHistoryModal(false)}
+            onRequestPress={(request) => {
+              setSelectedRequest(request);
+              loadMessages(request.id);
+              setCurrentPage("request-detail");
+            }}
             getStatusStyle={getStatusStyle}
             getStatusText={getStatusText}
           />
@@ -365,11 +376,20 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
       case "profile":
         return (
           <ProfilePage
-            profileImage={profileImage}
+            user={user}
             onBack={() => setCurrentPage("dashboard")}
             onNavigateToSubmitRequest={() => setCurrentPage("submit-request")}
             onNavigateToNotifications={() => setCurrentPage("notifications")}
             onEditAvatar={() => setShowImageOptions(true)}
+            onUpdateProfile={async (updates) => {
+              try {
+                await authService.updateProfile(updates);
+                setUser((prev) => prev ? { ...prev, ...updates } : null);
+                Alert.alert("Success", "Profile updated successfully");
+              } catch (error: any) {
+                Alert.alert("Error", error.message || "Failed to update profile");
+              }
+            }}
             onLogout={onLogout}
           />
         );
@@ -387,7 +407,7 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
       {/* Image Options Modal */}
       <ImageOptionsModal
         visible={showImageOptions}
-        profileImage={profileImage}
+        profileImage={user?.profile_image || null}
         onClose={() => setShowImageOptions(false)}
         onTakePhoto={handleTakePhoto}
         onUploadImage={handleImageUpload}

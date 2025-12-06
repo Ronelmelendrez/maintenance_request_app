@@ -11,22 +11,27 @@ import { borderRadius, colors, spacing } from "../../config/theme";
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
+  rightIcon?: React.ReactNode;
 }
 
 export const Input: React.FC<InputProps> = ({
   label,
   error,
   style,
+  rightIcon,
   ...props
 }) => {
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <TextInput
-        style={[styles.input, error && styles.inputError, style]}
-        placeholderTextColor={colors.text.tertiary}
-        {...props}
-      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[styles.input, error && styles.inputError, rightIcon && styles.inputWithIcon, style]}
+          placeholderTextColor={colors.text.tertiary}
+          {...props}
+        />
+        {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
+      </View>
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -41,6 +46,10 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     marginBottom: 6,
   },
+  inputContainer: {
+    position: 'relative',
+    width: '100%',
+  },
   input: {
     width: "100%",
     padding: spacing.md,
@@ -49,6 +58,17 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     fontSize: 14,
     backgroundColor: colors.white,
+  },
+  inputWithIcon: {
+    paddingRight: 45,
+  },
+  rightIcon: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   inputError: {
     borderColor: "#ef4444",

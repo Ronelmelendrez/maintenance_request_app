@@ -27,6 +27,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -137,7 +138,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secureTextEntry={!showPassword}
+              rightIcon={
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+                </TouchableOpacity>
+              }
             />
 
             <View style={styles.forgotPassword}>
@@ -311,5 +317,8 @@ const styles = StyleSheet.create({
   },
   signupLinkAdmin: {
     color: colors.primary,
+  },
+  eyeIcon: {
+    fontSize: 20,
   },
 });

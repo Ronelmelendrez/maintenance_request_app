@@ -5,6 +5,18 @@ const seedData = async () => {
   try {
     await db.connect();
 
+    // Check if data already exists
+    const existingUser = await db.get("SELECT id FROM users LIMIT 1");
+    if (existingUser) {
+      console.log("Database already seeded. Skipping...");
+      console.log(
+        "To reseed, delete the database file and run migration again."
+      );
+      return;
+    }
+
+    console.log("Seeding database with initial data...");
+
     // Hash passwords
     const hashedPassword = await bcrypt.hash("password123", 10);
 

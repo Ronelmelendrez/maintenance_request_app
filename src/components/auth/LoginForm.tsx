@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   Alert,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -65,128 +67,134 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     >
       <View style={styles.overlay} />
 
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        <View style={styles.loginHeader}>
-          <Text style={styles.headerTitle}>PRIMA CAMELLA</Text>
-          <Text style={styles.headerSubtitle}>BUTUAN</Text>
-        </View>
-
-        <View style={styles.loginCard}>
-          <View style={styles.welcomeBox}>
-            <Text
-              style={[
-                styles.welcomeText,
-                activeTab === "admin" && styles.welcomeTextAdmin,
-              ]}
-            >
-              Welcome Back!
-            </Text>
-            <Text style={styles.welcomeSubtext}>Login to continue</Text>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.loginHeader}>
+            <Text style={styles.headerTitle}>PRIMA CAMELLA</Text>
+            <Text style={styles.headerSubtitle}>BUTUAN</Text>
           </View>
 
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "homeowner" && styles.tabActive,
-              ]}
-              onPress={() => setActiveTab("homeowner")}
-            >
+          <View style={styles.loginCard}>
+            <View style={styles.welcomeBox}>
               <Text
                 style={[
-                  styles.tabText,
-                  activeTab === "homeowner" && styles.tabTextActive,
+                  styles.welcomeText,
+                  activeTab === "admin" && styles.welcomeTextAdmin,
                 ]}
               >
-                Homeowner
+                Welcome Back!
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "admin" && styles.tabActiveAdmin,
-              ]}
-              onPress={() => setActiveTab("admin")}
-            >
-              <Text
+              <Text style={styles.welcomeSubtext}>Login to continue</Text>
+            </View>
+
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
                 style={[
-                  styles.tabText,
-                  activeTab === "admin" && styles.tabTextActive,
+                  styles.tab,
+                  activeTab === "homeowner" && styles.tabActive,
                 ]}
+                onPress={() => setActiveTab("homeowner")}
               >
-                Admin
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.form}>
-            <Input
-              label="Email Address"
-              placeholder="Enter your email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <Input
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              rightIcon={
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === "homeowner" && styles.tabTextActive,
+                  ]}
                 >
-                  <Text style={styles.eyeIcon}>
-                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                  Homeowner
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === "admin" && styles.tabActiveAdmin,
+                ]}
+                onPress={() => setActiveTab("admin")}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === "admin" && styles.tabTextActive,
+                  ]}
+                >
+                  Admin
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.form}>
+              <Input
+                label="Email Address"
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <Input
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                rightIcon={
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Text style={styles.eyeIcon}>
+                      {showPassword ? "👁️" : "👁️‍🗨️"}
+                    </Text>
+                  </TouchableOpacity>
+                }
+              />
+
+              <View style={styles.forgotPassword}>
+                <TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.forgotLink,
+                      activeTab === "admin" && styles.forgotLinkAdmin,
+                    ]}
+                  >
+                    Forgot Password?
                   </Text>
                 </TouchableOpacity>
-              }
-            />
+              </View>
 
-            <View style={styles.forgotPassword}>
-              <TouchableOpacity>
-                <Text
-                  style={[
-                    styles.forgotLink,
-                    activeTab === "admin" && styles.forgotLinkAdmin,
-                  ]}
-                >
-                  Forgot Password?
-                </Text>
-              </TouchableOpacity>
-            </View>
+              <Button
+                title={loading ? "Logging in..." : "Log In"}
+                onPress={handleLogin}
+                variant={activeTab === "admin" ? "primary" : "accent"}
+                style={styles.loginButton}
+                disabled={loading}
+              />
 
-            <Button
-              title={loading ? "Logging in..." : "Log In"}
-              onPress={handleLogin}
-              variant={activeTab === "admin" ? "primary" : "accent"}
-              style={styles.loginButton}
-              disabled={loading}
-            />
-
-            <View style={styles.signupTextContainer}>
-              <Text style={styles.signupText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={onSignUpPress}>
-                <Text
-                  style={[
-                    styles.signupLink,
-                    activeTab === "admin" && styles.signupLinkAdmin,
-                  ]}
-                >
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.signupTextContainer}>
+                <Text style={styles.signupText}>Don't have an account? </Text>
+                <TouchableOpacity onPress={onSignUpPress}>
+                  <Text
+                    style={[
+                      styles.signupLink,
+                      activeTab === "admin" && styles.signupLinkAdmin,
+                    ]}
+                  >
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 };

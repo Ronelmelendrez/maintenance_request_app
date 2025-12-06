@@ -128,63 +128,7 @@ const seedData = async () => {
       );
     }
 
-    // Seed messages for in-progress request
-    const chatMessages = [
-      {
-        request_id: "REQ-001",
-        sender: "homeowner",
-        message: "The leak is getting worse. When can the technician arrive?",
-      },
-      {
-        request_id: "REQ-001",
-        sender: "admin",
-        message:
-          "Our technician will arrive within 2 hours. Thank you for your patience.",
-      },
-      {
-        request_id: "REQ-001",
-        sender: "homeowner",
-        message: "Thank you for the quick response!",
-      },
-    ];
-
-    for (const msg of chatMessages) {
-      await db.run(
-        `
-        INSERT INTO messages (request_id, sender, message)
-        VALUES (?, ?, ?)
-      `,
-        [msg.request_id, msg.sender, msg.message]
-      );
-    }
-
-    // Seed notifications
-    const notifications = [
-      {
-        user_id: homeowner.id,
-        type: "request_update",
-        title: "Request Updated",
-        message: "Your plumbing request has been assigned to John Smith",
-        is_read: false,
-      },
-      {
-        user_id: homeowner.id,
-        type: "request_completed",
-        title: "Request Completed",
-        message: "Your HVAC maintenance request has been completed",
-        is_read: true,
-      },
-    ];
-
-    for (const notif of notifications) {
-      await db.run(
-        `
-        INSERT INTO notifications (user_id, type, title, message, is_read)
-        VALUES (?, ?, ?, ?, ?)
-      `,
-        [notif.user_id, notif.type, notif.title, notif.message, notif.is_read]
-      );
-    }
+    // Messages and notifications removed from seed data
 
     console.log("Database seeded successfully");
   } catch (error) {

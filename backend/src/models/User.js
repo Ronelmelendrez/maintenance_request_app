@@ -30,7 +30,7 @@ class User {
       ]
     );
 
-    return this.findById(result.lastID);
+    return this.findById(result.id);
   }
 
   static async findById(id) {

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   Alert,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -98,185 +100,191 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     >
       <View style={styles.overlay} />
 
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        <View style={styles.signupHeader}>
-          <Text style={styles.headerTitle}>PRIMA CAMELLA</Text>
-          <Text style={styles.headerSubtitle}>BUTUAN</Text>
-        </View>
-
-        <View style={styles.signupCard}>
-          <View style={styles.welcomeBox}>
-            <Text
-              style={[
-                styles.welcomeText,
-                activeTab === "admin" && styles.welcomeTextAdmin,
-              ]}
-            >
-              Create Account
-            </Text>
-            <Text style={styles.welcomeSubtext}>Sign up to get started</Text>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.signupHeader}>
+            <Text style={styles.headerTitle}>PRIMA CAMELLA</Text>
+            <Text style={styles.headerSubtitle}>BUTUAN</Text>
           </View>
 
-          {/* Tabs */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "homeowner" && styles.tabActive,
-              ]}
-              onPress={() => setActiveTab("homeowner")}
-            >
+          <View style={styles.signupCard}>
+            <View style={styles.welcomeBox}>
               <Text
                 style={[
-                  styles.tabText,
-                  activeTab === "homeowner" && styles.tabTextActive,
+                  styles.welcomeText,
+                  activeTab === "admin" && styles.welcomeTextAdmin,
                 ]}
               >
-                Homeowner
+                Create Account
               </Text>
-            </TouchableOpacity>
+              <Text style={styles.welcomeSubtext}>Sign up to get started</Text>
+            </View>
 
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "admin" && styles.tabActiveAdmin,
-              ]}
-              onPress={() => setActiveTab("admin")}
-            >
-              <Text
+            {/* Tabs */}
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
                 style={[
-                  styles.tabText,
-                  activeTab === "admin" && styles.tabTextActive,
+                  styles.tab,
+                  activeTab === "homeowner" && styles.tabActive,
                 ]}
+                onPress={() => setActiveTab("homeowner")}
               >
-                Admin
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* FORM */}
-          <View style={styles.form}>
-            <Input
-              label="Full Name"
-              placeholder="Enter your full name"
-              value={fullName}
-              onChangeText={setFullName}
-            />
-
-            <Input
-              label="Email Address"
-              placeholder="Enter your email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            {activeTab === "homeowner" ? (
-              <Input
-                label="Address"
-                placeholder="Enter your address"
-                value={address}
-                onChangeText={setAddress}
-              />
-            ) : (
-              <>
-                <Input
-                  label="Position"
-                  placeholder="Enter your position"
-                  value={position}
-                  onChangeText={setPosition}
-                />
-                <Input
-                  label="Community"
-                  placeholder="Enter your community"
-                  value={community}
-                  onChangeText={setCommunity}
-                />
-              </>
-            )}
-
-            <Input
-              label="Phone Number"
-              placeholder="Enter your phone number"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-
-            <Input
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-
-            <Input
-              label="Confirm Password"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-            />
-
-            {/* ★ FIXED CHECKBOX ★ */}
-            <TouchableOpacity
-              style={styles.rememberMeContainer}
-              onPress={() => setRememberMe(!rememberMe)}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[
-                  styles.checkboxBox,
-                  rememberMe &&
-                    (activeTab === "admin"
-                      ? styles.checkboxBoxActiveAdmin
-                      : styles.checkboxBoxActive),
-                ]}
-              />
-
-              <Text
-                style={[
-                  styles.rememberMeText,
-                  rememberMe &&
-                    (activeTab === "admin"
-                      ? styles.rememberMeTextActiveAdmin
-                      : styles.rememberMeTextActive),
-                ]}
-              >
-                Remember Me
-              </Text>
-            </TouchableOpacity>
-
-            <Button
-              title={loading ? "Creating Account..." : "Sign Up"}
-              onPress={handleSignUp}
-              variant={activeTab === "admin" ? "primary" : "accent"}
-              style={styles.signupButton}
-              disabled={loading}
-            />
-
-            <View style={styles.loginTextContainer}>
-              <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={onBackToLogin}>
                 <Text
                   style={[
-                    styles.loginLink,
-                    activeTab === "admin" && styles.loginLinkAdmin,
+                    styles.tabText,
+                    activeTab === "homeowner" && styles.tabTextActive,
                   ]}
                 >
-                  Log In
+                  Homeowner
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === "admin" && styles.tabActiveAdmin,
+                ]}
+                onPress={() => setActiveTab("admin")}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === "admin" && styles.tabTextActive,
+                  ]}
+                >
+                  Admin
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {/* FORM */}
+            <View style={styles.form}>
+              <Input
+                label="Full Name"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChangeText={setFullName}
+              />
+
+              <Input
+                label="Email Address"
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              {activeTab === "homeowner" ? (
+                <Input
+                  label="Address"
+                  placeholder="Enter your address"
+                  value={address}
+                  onChangeText={setAddress}
+                />
+              ) : (
+                <>
+                  <Input
+                    label="Position"
+                    placeholder="Enter your position"
+                    value={position}
+                    onChangeText={setPosition}
+                  />
+                  <Input
+                    label="Community"
+                    placeholder="Enter your community"
+                    value={community}
+                    onChangeText={setCommunity}
+                  />
+                </>
+              )}
+
+              <Input
+                label="Phone Number"
+                placeholder="Enter your phone number"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+              />
+
+              <Input
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+
+              <Input
+                label="Confirm Password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+              />
+
+              {/* ★ FIXED CHECKBOX ★ */}
+              <TouchableOpacity
+                style={styles.rememberMeContainer}
+                onPress={() => setRememberMe(!rememberMe)}
+                activeOpacity={0.8}
+              >
+                <View
+                  style={[
+                    styles.checkboxBox,
+                    rememberMe &&
+                      (activeTab === "admin"
+                        ? styles.checkboxBoxActiveAdmin
+                        : styles.checkboxBoxActive),
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.rememberMeText,
+                    rememberMe &&
+                      (activeTab === "admin"
+                        ? styles.rememberMeTextActiveAdmin
+                        : styles.rememberMeTextActive),
+                  ]}
+                >
+                  Remember Me
+                </Text>
+              </TouchableOpacity>
+
+              <Button
+                title={loading ? "Creating Account..." : "Sign Up"}
+                onPress={handleSignUp}
+                variant={activeTab === "admin" ? "primary" : "accent"}
+                style={styles.signupButton}
+                disabled={loading}
+              />
+
+              <View style={styles.loginTextContainer}>
+                <Text style={styles.loginText}>Already have an account? </Text>
+                <TouchableOpacity onPress={onBackToLogin}>
+                  <Text
+                    style={[
+                      styles.loginLink,
+                      activeTab === "admin" && styles.loginLinkAdmin,
+                    ]}
+                  >
+                    Log In
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 };

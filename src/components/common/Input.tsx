@@ -12,6 +12,7 @@ interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
   rightIcon?: React.ReactNode;
+  containerStyle?: any;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -19,10 +20,11 @@ export const Input: React.FC<InputProps> = ({
   error,
   style,
   rightIcon,
+  containerStyle,
   ...props
 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <View style={styles.inputContainer}>
         <TextInput

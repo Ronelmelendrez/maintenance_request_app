@@ -247,7 +247,7 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
 
     try {
       const newMessage = await messageService.create(
-        selectedRequest.id.toString(),
+        selectedRequest.id,
         messageInput
       );
 
@@ -272,7 +272,7 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
   // Load messages for a request
   const loadMessages = async (requestId: number) => {
     try {
-      const messagesData = await messageService.getByRequestId(requestId.toString());
+      const messagesData = await messageService.getByRequestId(requestId);
       const formattedMessages = messagesData.map((msg: any) => ({
         id: msg.id,
         sender: msg.sender_name,

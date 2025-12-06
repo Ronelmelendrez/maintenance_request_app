@@ -45,11 +45,26 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const text = await response.text();
+      let error;
+      try {
+        error = JSON.parse(text);
+      } catch {
+        throw new Error(text || "Request failed");
+      }
       throw new Error(error.error || "Request failed");
     }
 
-    return response.json();
+    const text = await response.text();
+    if (!text) {
+      return {};
+    }
+    
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      throw new Error("Invalid response from server");
+    }
   }
 
   async put(endpoint: string, data: any) {

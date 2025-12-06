@@ -1,6 +1,12 @@
 import * as ImagePicker from "expo-image-picker";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Modal, Text, TouchableOpacity, View } from "react-native";
+import { authService, User } from "../../services/authService";
+import { messageService } from "../../services/messageService";
+import {
+  MaintenanceRequest,
+  requestService,
+} from "../../services/requestService";
 import styles from "./adminStyles";
 import { AssignTechnicianModal } from "./components/AssignTechnicianModal";
 import { CompleteRequestModal } from "./components/CompleteRequestModal";
@@ -10,9 +16,6 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { MaintenanceRequestsPage } from "./pages/MaintenanceRequestsPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { ProfilePage } from "./pages/ProfilePage";
-import { requestService, MaintenanceRequest } from "../../services/requestService";
-import { authService, User } from "../../services/authService";
-import { messageService } from "../../services/messageService";
 
 type AdminPageType =
   | "admin-dashboard"
@@ -33,7 +36,8 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [showCompletedModal, setShowCompletedModal] = useState(false);
   const [showInProgressModal, setShowInProgressModal] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<MaintenanceRequest | null>(null);
   const [showRequestDetailModal, setShowRequestDetailModal] = useState(false);
   const [showAssignTechnicianModal, setShowAssignTechnicianModal] =
     useState(false);
@@ -63,57 +67,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
       setCurrentUser(user);
       setAllRequests(requests);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load data');
+      Alert.alert("Error", error.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
   };
-    {
-      id: "REQ-2025-0018",
-      date: "2025-10-24",
-      type: "Plumbing",
-      status: "completed",
-      unit: "Unit 22D",
-      address: "Block D, Camella Homes",
-      description: "Toilet flush not working",
-      priority: "Medium",
-      assignedTechnician: "Sarah Lee",
-      technicianNotes: "Checking flush mechanism",
-      completionNotes: "Replaced flush valve",
-      completedDate: "2025-10-25",
-      messages: [],
-    },
-    {
-      id: "REQ-2025-0041",
-      date: "2025-10-28",
-      type: "Electrical",
-      status: "pending",
-      unit: "Unit 09A",
-      address: "Block A, Camella Homes",
-      description: "Dimmer switch malfunctioning",
-      priority: "Low",
-      assignedTechnician: "",
-      technicianNotes: "",
-      completionNotes: "",
-      completedDate: "",
-      messages: [],
-    },
-    {
-      id: "REQ-2025-0037",
-      date: "2025-10-27",
-      type: "Appliance",
-      status: "in-progress",
-      unit: "Unit 15B",
-      address: "Block B, Camella Homes",
-      description: "Water heater temperature issue",
-      priority: "High",
-      assignedTechnician: "John Smith",
-      technicianNotes: "Inspecting thermostat",
-      completionNotes: "",
-      completedDate: "",
-      messages: [],
-    },
-  ]);
 
   // Computed states
   const pendingRequests = allRequests.filter((req) => req.status === "pending");
@@ -236,9 +194,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
         technician_notes: technicianNotes,
       });
 
-      setAllRequests(allRequests.map((req) =>
-        req.id === selectedRequest.id ? updatedRequest : req
-      ));
+      setAllRequests(
+        allRequests.map((req) =>
+          req.id === selectedRequest.id ? updatedRequest : req
+        )
+      );
 
       setShowAssignTechnicianModal(false);
       setShowRequestDetailModal(false);
@@ -269,9 +229,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
         completed_date: new Date().toISOString().split("T")[0],
       });
 
-      setAllRequests(allRequests.map((req) =>
-        req.id === selectedRequest.id ? updatedRequest : req
-      ));
+      setAllRequests(
+        allRequests.map((req) =>
+          req.id === selectedRequest.id ? updatedRequest : req
+        )
+      );
 
       setShowCompleteRequestModal(false);
       setShowRequestDetailModal(false);
@@ -288,12 +250,14 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
 
     try {
       const updatedRequest = await requestService.update(selectedRequest.id, {
-        priority: priority as 'High' | 'Medium' | 'Low',
+        priority: priority as "High" | "Medium" | "Low",
       });
 
-      setAllRequests(allRequests.map((req) =>
-        req.id === selectedRequest.id ? updatedRequest : req
-      ));
+      setAllRequests(
+        allRequests.map((req) =>
+          req.id === selectedRequest.id ? updatedRequest : req
+        )
+      );
 
       setSelectedRequest(updatedRequest);
     } catch (error: any) {
@@ -310,9 +274,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
       // Reload request to get updated messages
       const updatedRequest = await requestService.getById(selectedRequest.id);
       setSelectedRequest(updatedRequest);
-      setAllRequests(allRequests.map((req) =>
-        req.id === selectedRequest.id ? updatedRequest : req
-      ));
+      setAllRequests(
+        allRequests.map((req) =>
+          req.id === selectedRequest.id ? updatedRequest : req
+        )
+      );
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to send message");
     }

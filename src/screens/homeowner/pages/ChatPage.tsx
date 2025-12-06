@@ -190,15 +190,14 @@ export const ChatPage: React.FC<ChatPageProps> = ({
               onChangeText={onMessageInputChange}
               style={styles.messageInput}
               containerStyle={styles.inputContainer}
-              rightIcon={
-                <TouchableOpacity
-                  onPress={onSendMessage}
-                  style={styles.sendIconButton}
-                >
-                  <Icon name="send" size={24} color={colors.white} />
-                </TouchableOpacity>
-              }
             />
+            <TouchableOpacity
+              onPress={onSendMessage}
+              style={styles.sendIconButton}
+              disabled={!messageInput.trim()}
+            >
+              <Icon name="send" size={24} color={colors.white} />
+            </TouchableOpacity>
           </View>
           <Button
             title="Continue"

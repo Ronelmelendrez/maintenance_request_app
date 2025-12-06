@@ -104,22 +104,23 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   messageInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
     marginBottom: spacing.md,
   },
   inputContainer: {
+    flex: 1,
     marginBottom: 0,
   },
   messageInput: {
-    paddingRight: 60, // Make space for the send button
+    minHeight: 40,
   },
   sendIconButton: {
-    position: "absolute",
-    right: 8,
-    top: 8,
     backgroundColor: colors.accent,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
   },

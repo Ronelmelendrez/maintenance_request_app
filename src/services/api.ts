@@ -59,7 +59,7 @@ class ApiClient {
     if (!text) {
       return {};
     }
-    
+
     try {
       return JSON.parse(text);
     } catch (e) {

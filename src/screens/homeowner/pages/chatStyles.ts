@@ -123,6 +123,18 @@ const styles = StyleSheet.create({
   continueButton: {
     marginTop: spacing.md,
   },
+  emptyMessagesContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.xl,
+    minHeight: 200,
+  },
+  emptyMessagesText: {
+    fontSize: 16,
+    color: colors.text.tertiary,
+    textAlign: "center",
+  },
 });
 
 export default styles;

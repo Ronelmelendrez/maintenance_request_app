@@ -54,8 +54,15 @@ export const ChatPage: React.FC<ChatPageProps> = ({
         style={styles.chatContainer}
         contentContainerStyle={{ paddingBottom: 80 }}
       >
-        {messages.map((message) => (
-          <View key={message.id} style={styles.messageGroup}>
+        {messages.length === 0 ? (
+          <View style={styles.emptyMessagesContainer}>
+            <Text style={styles.emptyMessagesText}>
+              No messages yet. Start the conversation!
+            </Text>
+          </View>
+        ) : (
+          messages.map((message) => (
+            <View key={message.id} style={styles.messageGroup}>
             <View
               style={[
                 styles.messageHeader,
@@ -107,7 +114,8 @@ export const ChatPage: React.FC<ChatPageProps> = ({
               )}
             </View>
           </View>
-        ))}
+        ))
+        )}
       </ScrollView>
 
       {/* Message Input */}

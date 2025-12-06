@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import styles from "./modalStyles";
 
 interface RequestDetailModalProps {
@@ -20,6 +13,7 @@ interface RequestDetailModalProps {
   onCompleteRequest: () => void;
   onSetPriority?: (priority: string) => void;
   onSendMessage?: (message: string) => void;
+  onOpenChat?: () => void;
 }
 
 export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
@@ -33,6 +27,7 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   onCompleteRequest,
   onSetPriority,
   onSendMessage,
+  onOpenChat,
 }) => {
   const [messageInput, setMessageInput] = useState("");
 
@@ -220,53 +215,17 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
             )}
 
             {/* Chat Section for In-Progress Requests */}
-            {request.status === "in-progress" && (
+            {request.status === "in-progress" && onOpenChat && (
               <View style={styles.chatSection}>
                 <Text style={styles.chatSectionTitle}>Messages</Text>
-                <View style={styles.chatContainer}>
-                  {request.messages && request.messages.length > 0 ? (
-                    request.messages.map((msg: any, index: number) => (
-                      <View
-                        key={index}
-                        style={[
-                          styles.chatMessage,
-                          msg.sender === "admin"
-                            ? styles.chatMessageAdmin
-                            : styles.chatMessageHomeowner,
-                        ]}
-                      >
-                        <Text style={styles.chatSenderLabel}>
-                          {msg.sender === "admin" ? "You" : "Homeowner"}
-                        </Text>
-                        <Text style={styles.chatMessageText}>{msg.text}</Text>
-                        <Text style={styles.chatMessageTime}>
-                          {msg.timestamp}
-                        </Text>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noMessagesText}>
-                      No messages yet. Start a conversation with the homeowner.
-                    </Text>
-                  )}
-                </View>
-                {onSendMessage && (
-                  <View style={styles.chatInputContainer}>
-                    <TextInput
-                      style={styles.chatInput}
-                      value={messageInput}
-                      onChangeText={setMessageInput}
-                      placeholder="Type your message..."
-                      multiline
-                    />
-                    <TouchableOpacity
-                      style={styles.sendButton}
-                      onPress={handleSendMessage}
-                    >
-                      <Text style={styles.sendButtonText}>Send</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
+                <TouchableOpacity
+                  style={styles.openChatButton}
+                  onPress={onOpenChat}
+                >
+                  <Text style={styles.openChatButtonText}>
+                    Open Chat with Homeowner
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
 

@@ -72,6 +72,13 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
     loadData();
   }, []);
 
+  // Reload messages when switching to chat page to get updated user profiles
+  useEffect(() => {
+    if (currentPage === "chat" && selectedRequest) {
+      loadMessages(selectedRequest.id);
+    }
+  }, [currentPage]);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -139,9 +146,8 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
       const newImageUri = result.assets[0].uri;
       try {
         await authService.updateProfile({ profile_image: newImageUri });
-        setUser((prev) =>
-          prev ? { ...prev, profile_image: newImageUri } : null
-        );
+        const updatedUser = await authService.getCurrentUser();
+        setUser(updatedUser);
         setShowImageOptions(false);
         Alert.alert("Success", "Profile image updated");
       } catch (error: any) {
@@ -172,9 +178,8 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
       const newImageUri = result.assets[0].uri;
       try {
         await authService.updateProfile({ profile_image: newImageUri });
-        setUser((prev) =>
-          prev ? { ...prev, profile_image: newImageUri } : null
-        );
+        const updatedUser = await authService.getCurrentUser();
+        setUser(updatedUser);
         setShowImageOptions(false);
         Alert.alert("Success", "Profile image updated");
       } catch (error: any) {
@@ -186,7 +191,8 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
   const handleRemovePhoto = async () => {
     try {
       await authService.updateProfile({ profile_image: null });
-      setUser((prev) => (prev ? { ...prev, profile_image: null } : null));
+      const updatedUser = await authService.getCurrentUser();
+      setUser(updatedUser);
       setShowImageOptions(false);
       Alert.alert("Success", "Profile image removed");
     } catch (error: any) {
@@ -395,7 +401,8 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
             onUpdateProfile={async (updates) => {
               try {
                 await authService.updateProfile(updates);
-                setUser((prev) => (prev ? { ...prev, ...updates } : null));
+                const updatedUser = await authService.getCurrentUser();
+                setUser(updatedUser);
                 Alert.alert("Success", "Profile updated successfully");
               } catch (error: any) {
                 Alert.alert(

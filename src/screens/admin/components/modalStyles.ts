@@ -237,6 +237,18 @@ const styles = StyleSheet.create({
     color: "#374151",
     marginBottom: 12,
   },
+  openChatButton: {
+    backgroundColor: "#3b82f6",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  openChatButtonText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   chatContainer: {
     maxHeight: 250,
     marginBottom: 12,

@@ -31,11 +31,22 @@ const messageController = {
           user_id: request.user_id,
           type: "new_message",
           title: "New Message",
-          message: "Admin replied to your request",
+          message: `Admin replied to your ${request.type} request`,
         });
       } else {
-        // Notify admin (simplified - in production, notify assigned admin)
-        // This would need improvement to notify the correct admin user
+        // Notify all admin users when homeowner sends a message
+        const db = require("../database/connection");
+        const admins = await db.all(
+          "SELECT id FROM users WHERE role = 'admin'"
+        );
+        for (const admin of admins) {
+          await Notification.create({
+            user_id: admin.id,
+            type: "new_message",
+            title: "New Message from Homeowner",
+            message: `New message on ${request.type} request #${request.id}`,
+          });
+        }
       }
 
       res.status(201).json(newMessage);

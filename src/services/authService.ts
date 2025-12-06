@@ -10,7 +10,7 @@ export interface User {
   address?: string;
   position?: string;
   community?: string;
-  profile_image?: string;
+  profile_image?: string | null;
 }
 
 export interface AuthResponse {
@@ -57,6 +57,7 @@ export const authService = {
     address?: string;
     position?: string;
     community?: string;
+    profile_image?: string | null;
   }): Promise<User> {
     const response = await api.put("/auth/profile", data);
     await AsyncStorage.setItem("user", JSON.stringify(response));

@@ -158,19 +158,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
           <View style={styles.profileField}>
             <Text style={styles.profileFieldLabel}>Email</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.profileFieldInput}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter email"
-                keyboardType="email-address"
-              />
-            ) : (
-              <View style={styles.profileFieldValue}>
-                <Text style={styles.profileFieldValueText}>{email}</Text>
-              </View>
-            )}
+            <View style={styles.profileFieldValue}>
+              <Text style={styles.profileFieldValueText}>{email}</Text>
+            </View>
           </View>
 
           <View style={styles.profileField}>

@@ -52,6 +52,30 @@ class Message {
     await db.run("DELETE FROM messages WHERE request_id = ?", [request_id]);
     return true;
   }
+
+  static async getUnreadCountByRequest(request_id, userRole) {
+    // Count messages sent by the opposite role
+    const oppositeSender = userRole === "admin" ? "homeowner" : "admin";
+    const result = await db.get(
+      `SELECT COUNT(*) as count FROM messages 
+       WHERE request_id = ? AND sender = ?`,
+      [request_id, oppositeSender]
+    );
+    return result.count || 0;
+  }
+
+  static async hasUnreadMessages(userRole) {
+    // Get all requests with unread messages for this user role
+    const oppositeSender = userRole === "admin" ? "homeowner" : "admin";
+    const result = await db.all(
+      `SELECT DISTINCT request_id, COUNT(*) as unread_count
+       FROM messages 
+       WHERE sender = ?
+       GROUP BY request_id`,
+      [oppositeSender]
+    );
+    return result;
+  }
 }
 
 module.exports = Message;

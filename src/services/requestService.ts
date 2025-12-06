@@ -39,6 +39,7 @@ export const requestService = {
     description: string;
     unit: string;
     address?: string;
+    priority?: string;
   }): Promise<MaintenanceRequest> {
     return await api.post("/requests", data);
   },

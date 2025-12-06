@@ -9,6 +9,7 @@ import {
 } from "../../services/requestService";
 import styles from "./adminStyles";
 import { AssignTechnicianModal } from "./components/AssignTechnicianModal";
+import { ChatModal } from "./components/ChatModal";
 import { CompleteRequestModal } from "./components/CompleteRequestModal";
 import { RequestDetailModal } from "./components/RequestDetailModal";
 import { RequestModal } from "./components/RequestModal";
@@ -46,6 +47,8 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
   const [showCompleteRequestModal, setShowCompleteRequestModal] =
     useState(false);
   const [completionNotes, setCompletionNotes] = useState("");
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
 
   // State for data from backend
   const [allRequests, setAllRequests] = useState<MaintenanceRequest[]>([]);
@@ -123,8 +126,9 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
   };
 
   const getProfileImageSource = () => {
-    if (profileImage) {
-      return { uri: profileImage };
+    const imageUri = currentUser?.profile_image || profileImage;
+    if (imageUri) {
+      return { uri: imageUri };
     }
     return { uri: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" };
   };
@@ -144,8 +148,17 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     });
 
     if (!result.canceled && result.assets && result.assets[0]) {
-      setProfileImage(result.assets[0].uri);
-      setShowImageOptions(false);
+      const newImageUri = result.assets[0].uri;
+      try {
+        await authService.updateProfile({ profile_image: newImageUri });
+        const updatedUser = await authService.getCurrentUser();
+        setCurrentUser(updatedUser);
+        setProfileImage(newImageUri);
+        setShowImageOptions(false);
+        Alert.alert("Success", "Profile image updated");
+      } catch (error: any) {
+        Alert.alert("Error", error.message || "Failed to update profile image");
+      }
     }
   };
 
@@ -163,14 +176,31 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     });
 
     if (!result.canceled && result.assets && result.assets[0]) {
-      setProfileImage(result.assets[0].uri);
-      setShowImageOptions(false);
+      const newImageUri = result.assets[0].uri;
+      try {
+        await authService.updateProfile({ profile_image: newImageUri });
+        const updatedUser = await authService.getCurrentUser();
+        setCurrentUser(updatedUser);
+        setProfileImage(newImageUri);
+        setShowImageOptions(false);
+        Alert.alert("Success", "Profile image updated");
+      } catch (error: any) {
+        Alert.alert("Error", error.message || "Failed to update profile image");
+      }
     }
   };
 
-  const handleRemovePhoto = () => {
-    setProfileImage(null);
-    setShowImageOptions(false);
+  const handleRemovePhoto = async () => {
+    try {
+      await authService.updateProfile({ profile_image: null });
+      const updatedUser = await authService.getCurrentUser();
+      setCurrentUser(updatedUser);
+      setProfileImage(null);
+      setShowImageOptions(false);
+      Alert.alert("Success", "Profile image removed");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to remove profile image");
+    }
   };
 
   // Request handlers
@@ -271,17 +301,38 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     try {
       await messageService.create(selectedRequest.id, message);
 
-      // Reload request to get updated messages
-      const updatedRequest = await requestService.getById(selectedRequest.id);
-      setSelectedRequest(updatedRequest);
-      setAllRequests(
-        allRequests.map((req) =>
-          req.id === selectedRequest.id ? updatedRequest : req
-        )
-      );
+      // Reload messages
+      await loadChatMessages(selectedRequest.id);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to send message");
     }
+  };
+
+  const loadChatMessages = async (requestId: string) => {
+    try {
+      const messagesData = await messageService.getByRequestId(requestId);
+      const formattedMessages = messagesData.map((msg: any) => ({
+        id: msg.id,
+        sender:
+          msg.sender_name ||
+          (msg.sender_role === "admin" ? "Admin" : "Homeowner"),
+        text: msg.message,
+        avatar:
+          msg.sender_avatar ||
+          "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
+        isAdmin: msg.sender_role === "admin",
+        timestamp: msg.created_at,
+      }));
+      setChatMessages(formattedMessages);
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to load messages");
+    }
+  };
+
+  const handleOpenChat = async (request: MaintenanceRequest) => {
+    setSelectedRequest(request);
+    await loadChatMessages(request.id);
+    setShowChatModal(true);
   };
 
   const handleLogout = async () => {
@@ -462,6 +513,21 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
         getPriorityStyle={getPriorityStyle}
         onSetPriority={handleSetPriority}
         onSendMessage={handleSendMessage}
+        onOpenChat={() => {
+          setShowRequestDetailModal(false);
+          handleOpenChat(selectedRequest!);
+        }}
+      />
+
+      <ChatModal
+        visible={showChatModal}
+        onClose={() => setShowChatModal(false)}
+        request={selectedRequest}
+        messages={chatMessages}
+        onSendMessage={handleSendMessage}
+        onRefresh={() =>
+          selectedRequest && loadChatMessages(selectedRequest.id)
+        }
       />
 
       <AssignTechnicianModal
@@ -507,7 +573,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
               <Text style={styles.optionButtonText}>Choose from Library</Text>
             </TouchableOpacity>
 
-            {profileImage && (
+            {(profileImage || currentUser?.profile_image) && (
               <TouchableOpacity
                 style={[styles.optionButton, styles.removeButton]}
                 onPress={handleRemovePhoto}

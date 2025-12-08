@@ -75,11 +75,12 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
     loadUnreadNotifications();
   }, []);
 
-  // Poll for new notifications every 30 seconds
+  // Poll for new notifications and requests every 10 seconds to sync with database
   useEffect(() => {
     const interval = setInterval(() => {
       loadUnreadNotifications();
-    }, 30000);
+      loadData(); // Reload requests to sync with database
+    }, 10000); // Check every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -89,6 +90,32 @@ export const HomeownerApp: React.FC<HomeownerAppProps> = ({ onLogout }) => {
       loadMessages(selectedRequest.id);
     }
   }, [currentPage]);
+
+  // Reload data when viewing request detail to ensure latest status
+  useEffect(() => {
+    if (currentPage === "request-detail" && selectedRequest) {
+      refreshSelectedRequest();
+    }
+  }, [currentPage]);
+
+  const refreshSelectedRequest = async () => {
+    if (!selectedRequest) return;
+    try {
+      // Reload all requests to ensure we have the latest data
+      const allRequests = await requestService.getAll();
+      setRequests(allRequests);
+
+      // Find and update the selected request
+      const updatedRequest = allRequests.find(
+        (req) => req.id === selectedRequest.id
+      );
+      if (updatedRequest) {
+        setSelectedRequest(updatedRequest);
+      }
+    } catch (error) {
+      console.error("Failed to refresh request:", error);
+    }
+  };
 
   const loadData = async () => {
     try {

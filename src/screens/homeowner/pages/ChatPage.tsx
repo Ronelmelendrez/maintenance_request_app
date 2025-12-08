@@ -120,50 +120,50 @@ export const ChatPage: React.FC<ChatPageProps> = ({
                   <View
                     style={[
                       styles.messageHeader,
-                      !message.isHomeowner && styles.messageHeaderRight,
+                      message.isHomeowner && styles.messageHeaderRight,
                     ]}
                   >
                     {message.isHomeowner ? (
                       <>
+                        <Text style={styles.messageSender}>
+                          {message.sender}
+                        </Text>
                         <Image
                           source={{ uri: message.avatar }}
                           style={styles.messageAvatar}
                         />
-                        <Text style={styles.messageSender}>
-                          {message.sender}
-                        </Text>
                       </>
                     ) : (
                       <>
-                        <Text style={styles.messageSender}>
-                          {message.sender}
-                        </Text>
                         <Image
                           source={{ uri: message.avatar }}
                           style={styles.messageAvatar}
                         />
+                        <Text style={styles.messageSender}>
+                          Admin {message.sender}
+                        </Text>
                       </>
                     )}
                   </View>
                   <View
                     style={
                       message.isHomeowner
-                        ? styles.messageLeft
-                        : styles.messageRight
+                        ? styles.messageRight
+                        : styles.messageLeft
                     }
                   >
                     <View
                       style={
                         message.isHomeowner
-                          ? styles.messageBubbleLeft
-                          : styles.messageBubbleRight
+                          ? styles.messageBubbleRight
+                          : styles.messageBubbleLeft
                       }
                     >
                       <Text
                         style={
                           message.isHomeowner
-                            ? styles.messageTextLeft
-                            : styles.messageTextRight
+                            ? styles.messageTextRight
+                            : styles.messageTextLeft
                         }
                       >
                         {message.text}

@@ -87,12 +87,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     );
     const scale = 120 / maxValue; // Max height of 120px
     const chartWidth = 250; // Total width for points
-    const spacing = chartWidth / (weeklyChartData.length - 1); // Spacing between points
+    const spacing = chartWidth / Math.max(weeklyChartData.length - 1, 1); // Spacing between points, avoid division by zero
 
     return data
       .map((value, index) => {
         const x = 40 + index * spacing; // Dynamic spacing between points
-        const y = 140 - value * scale; // Invert Y axis
+        const y = 140 - (value || 0) * scale; // Invert Y axis, ensure value is not NaN
         return `${x},${y}`;
       })
       .join(" ");
@@ -259,9 +259,33 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           <View style={styles.chartContainer}>
             <Svg width={300} height={200} style={styles.chart}>
               {(() => {
-                // Fixed Y-axis scale: 0, 3, 6, 9
-                const ySteps = [0, 3, 6, 9];
-                const maxYValue = 9; // Fixed maximum value
+                // Calculate dynamic Y-axis scale based on actual data
+                const maxDataValue = Math.max(
+                  ...weeklyChartData.map((d) =>
+                    Math.max(d.completed, d.pending)
+                  ),
+                  1
+                );
+
+                // Determine max Y value (round up to next multiple of 3 or 5)
+                let maxYValue;
+                if (maxDataValue <= 3) {
+                  maxYValue = 3;
+                } else if (maxDataValue <= 6) {
+                  maxYValue = 6;
+                } else if (maxDataValue <= 9) {
+                  maxYValue = 9;
+                } else if (maxDataValue <= 12) {
+                  maxYValue = 12;
+                } else if (maxDataValue <= 15) {
+                  maxYValue = 15;
+                } else {
+                  maxYValue = Math.ceil(maxDataValue / 5) * 5;
+                }
+
+                // Create Y-axis steps (4 steps)
+                const stepSize = maxYValue / 3;
+                const ySteps = [0, stepSize, stepSize * 2, maxYValue];
 
                 // Chart dimensions
                 const chartHeight = 140; // Height for data area
@@ -273,13 +297,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   left: 40,
                 };
 
-                // Calculate scaling - fixed to max value of 9
+                // Calculate scaling - dynamic based on max value
                 const scaleY = chartHeight / maxYValue;
-                const spacing = chartWidth / (weeklyChartData.length - 1);
+                const spacing =
+                  chartWidth / Math.max(weeklyChartData.length - 1, 1); // Avoid division by zero
 
                 // Helper to get Y coordinate
                 const getY = (value: number) => {
-                  const scaledValue = Math.min(value, maxYValue); // Cap at max value
+                  const safeValue = isNaN(value) ? 0 : value; // Protect against NaN
+                  const scaledValue = Math.min(safeValue, maxYValue); // Cap at max value
                   return margin.top + chartHeight - scaledValue * scaleY;
                 };
 
@@ -337,7 +363,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                             stroke="#e5e7eb"
                             strokeWidth="1"
                           />
-                          {/* Y-axis labels - fixed at 0, 3, 6, 9 */}
+                          {/* Y-axis labels - dynamic based on data */}
                           <SvgText
                             x={margin.left - 5}
                             y={y + 4}
@@ -345,7 +371,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                             fill="#999"
                             textAnchor="end"
                           >
-                            {stepValue}
+                            {Math.round(stepValue)}
                           </SvgText>
                         </React.Fragment>
                       );

@@ -38,6 +38,18 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   if (!request) return null;
 
   return (
@@ -89,7 +101,9 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
 
             <View style={styles.detailSection}>
               <Text style={styles.detailLabel}>Date Submitted</Text>
-              <Text style={styles.detailValue}>{request.date}</Text>
+              <Text style={styles.detailValue}>
+                {formatDate(request.created_at)}
+              </Text>
             </View>
 
             <View style={styles.detailSection}>
@@ -180,37 +194,39 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
               </Text>
             </View>
 
-            {request.assignedTechnician && (
+            {request.assigned_technician && (
               <View style={styles.detailSection}>
                 <Text style={styles.detailLabel}>Assigned Technician</Text>
                 <Text style={styles.detailValue}>
-                  {request.assignedTechnician}
+                  {request.assigned_technician}
                 </Text>
               </View>
             )}
 
-            {request.technicianNotes && (
+            {request.technician_notes && (
               <View style={styles.detailSection}>
                 <Text style={styles.detailLabel}>Technician Notes</Text>
                 <Text style={styles.detailValue}>
-                  {request.technicianNotes}
+                  {request.technician_notes}
                 </Text>
               </View>
             )}
 
-            {request.completionNotes && (
+            {request.completion_notes && (
               <View style={styles.detailSection}>
                 <Text style={styles.detailLabel}>Completion Notes</Text>
                 <Text style={styles.detailValue}>
-                  {request.completionNotes}
+                  {request.completion_notes}
                 </Text>
               </View>
             )}
 
-            {request.completedDate && (
+            {request.completed_date && (
               <View style={styles.detailSection}>
                 <Text style={styles.detailLabel}>Completed Date</Text>
-                <Text style={styles.detailValue}>{request.completedDate}</Text>
+                <Text style={styles.detailValue}>
+                  {formatDate(request.completed_date)}
+                </Text>
               </View>
             )}
 

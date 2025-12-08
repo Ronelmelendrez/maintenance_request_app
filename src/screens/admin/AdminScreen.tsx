@@ -64,11 +64,12 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     loadUnreadNotifications();
   }, []);
 
-  // Poll for new notifications every 30 seconds
+  // Poll for new notifications and requests every 10 seconds to sync with database
   useEffect(() => {
     const interval = setInterval(() => {
       loadUnreadNotifications();
-    }, 30000);
+      loadData(); // Reload requests to sync with database
+    }, 10000); // Check every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -117,18 +118,20 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
   });
 
   // Calculate performance metrics
-  const activeTechnicians = new Set(
-    inProgressRequests
-      .filter((req) => req.assigned_technician)
-      .map((req) => req.assigned_technician)
-  ).size;
+  const activeTechnicians =
+    new Set(
+      inProgressRequests
+        .filter((req) => req.assigned_technician)
+        .map((req) => req.assigned_technician)
+    ).size || 0;
 
-  const completedThisWeek = allRequests.filter((req) => {
-    if (req.status !== "completed") return false;
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return new Date(req.updated_at || req.created_at) >= weekAgo;
-  }).length;
+  const completedThisWeek =
+    allRequests.filter((req) => {
+      if (req.status !== "completed") return false;
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return new Date(req.updated_at || req.created_at) >= weekAgo;
+    }).length || 0;
 
   // Calculate average response time (time from created to in-progress)
   const responseTimes = allRequests
@@ -138,7 +141,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
       const updated = new Date(req.updated_at || req.created_at).getTime();
       return (updated - created) / (1000 * 60 * 60); // Convert to hours
     })
-    .filter((time) => time > 0 && time < 168); // Filter valid times (< 1 week)
+    .filter((time) => !isNaN(time) && time > 0 && time < 168); // Filter valid times (< 1 week) and remove NaN
 
   const avgResponseTime =
     responseTimes.length > 0
@@ -174,17 +177,19 @@ export const AdminApp: React.FC<AdminAppProps> = ({ onLogout }) => {
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const completed = allRequests.filter((req) => {
-      if (req.status !== "completed" || !req.completed_date) return false;
-      const completedDate = new Date(req.completed_date);
-      return completedDate >= startOfDay && completedDate <= endOfDay;
-    }).length;
+    const completed =
+      allRequests.filter((req) => {
+        if (req.status !== "completed" || !req.completed_date) return false;
+        const completedDate = new Date(req.completed_date);
+        return completedDate >= startOfDay && completedDate <= endOfDay;
+      }).length || 0;
 
-    const pending = allRequests.filter((req) => {
-      if (req.status !== "pending") return false;
-      const createdDate = new Date(req.created_at);
-      return createdDate >= startOfDay && createdDate <= endOfDay;
-    }).length;
+    const pending =
+      allRequests.filter((req) => {
+        if (req.status !== "pending") return false;
+        const createdDate = new Date(req.created_at);
+        return createdDate >= startOfDay && createdDate <= endOfDay;
+      }).length || 0;
 
     return { day: dayName, completed, pending };
   });

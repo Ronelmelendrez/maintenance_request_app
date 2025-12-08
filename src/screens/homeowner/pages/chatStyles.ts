@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   messageBubbleRight: {
-    backgroundColor: colors.secondary,
+    backgroundColor: "#86efac",
     borderRadius: borderRadius.md,
     padding: spacing.md,
     maxWidth: "80%",
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   messageTextRight: {
     fontSize: 14,
-    color: colors.white,
+    color: "#14532d",
     lineHeight: 20,
   },
   messageTimestamp: {

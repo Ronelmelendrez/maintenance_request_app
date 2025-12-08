@@ -26,92 +26,108 @@ export const RequestModal: React.FC<RequestModalProps> = ({
   getStatusStyle,
   getStatusText,
   getPriorityStyle,
-}) => (
-  <Modal
-    visible={visible}
-    transparent={true}
-    animationType="slide"
-    onRequestClose={onClose}
-  >
-    <View style={styles.modalOverlay}>
-      <View style={styles.requestsModal}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>{title}</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
-        </View>
+}) => {
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
-        <ScrollView
-          style={styles.requestsList}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        >
-          {requests.map((request, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.requestModalCard,
-                clickable && styles.clickableCard,
-              ]}
-              onPress={
-                clickable && onRequestClick
-                  ? () => onRequestClick(request)
-                  : undefined
-              }
-            >
-              <View style={styles.requestModalHeader}>
-                <Text style={styles.requestModalId}>{request.id}</Text>
-                <View style={styles.requestModalBadges}>
-                  {showStatus && (
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.requestsModal}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>{title}</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            style={styles.requestsList}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            {requests.map((request, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.requestModalCard,
+                  clickable && styles.clickableCard,
+                ]}
+                onPress={
+                  clickable && onRequestClick
+                    ? () => onRequestClick(request)
+                    : undefined
+                }
+              >
+                <View style={styles.requestModalHeader}>
+                  <Text style={styles.requestModalId}>{request.id}</Text>
+                  <View style={styles.requestModalBadges}>
+                    {showStatus && (
+                      <Text
+                        style={[
+                          styles.requestModalStatus,
+                          getStatusStyle(request.status),
+                        ]}
+                      >
+                        {getStatusText(request.status)}
+                      </Text>
+                    )}
                     <Text
                       style={[
-                        styles.requestModalStatus,
-                        getStatusStyle(request.status),
+                        styles.requestModalPriority,
+                        getPriorityStyle(request.priority),
                       ]}
                     >
-                      {getStatusText(request.status)}
+                      {request.priority}
                     </Text>
-                  )}
-                  <Text
-                    style={[
-                      styles.requestModalPriority,
-                      getPriorityStyle(request.priority),
-                    ]}
-                  >
-                    {request.priority}
+                  </View>
+                </View>
+
+                <Text style={styles.requestModalType}>{request.type}</Text>
+                <Text style={styles.requestModalDescription}>
+                  {request.description}
+                </Text>
+
+                <View style={styles.requestModalFooter}>
+                  <Text style={styles.requestModalUnit}>{request.unit}</Text>
+                  <Text style={styles.requestModalDate}>
+                    {formatDate(request.created_at)}
                   </Text>
                 </View>
-              </View>
 
-              <Text style={styles.requestModalType}>{request.type}</Text>
-              <Text style={styles.requestModalDescription}>
-                {request.description}
-              </Text>
+                {request.address && (
+                  <View style={styles.addressInfo}>
+                    <Text style={styles.addressLabel}>📍 </Text>
+                    <Text style={styles.addressText}>{request.address}</Text>
+                  </View>
+                )}
 
-              <View style={styles.requestModalFooter}>
-                <Text style={styles.requestModalUnit}>{request.unit}</Text>
-                <Text style={styles.requestModalDate}>{request.date}</Text>
-              </View>
-
-              {request.address && (
-                <View style={styles.addressInfo}>
-                  <Text style={styles.addressLabel}>📍 </Text>
-                  <Text style={styles.addressText}>{request.address}</Text>
-                </View>
-              )}
-
-              {request.assignedTechnician && (
-                <View style={styles.technicianInfo}>
-                  <Text style={styles.technicianLabel}>Assigned to: </Text>
-                  <Text style={styles.technicianName}>
-                    {request.assignedTechnician}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+                {request.assigned_technician && (
+                  <View style={styles.technicianInfo}>
+                    <Text style={styles.technicianLabel}>Assigned to: </Text>
+                    <Text style={styles.technicianName}>
+                      {request.assigned_technician}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       </View>
-    </View>
-  </Modal>
-);
+    </Modal>
+  );
+};

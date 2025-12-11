@@ -1,5 +1,10 @@
 # Maintenance Request Application - Setup and Run Guide
 
+> **Note:** This guide describes an earlier iteration of the project
+> (including different port and schema details). For the most accurate
+> and up‑to‑date setup instructions, please use `GETTING_STARTED.md`
+> and the root `README.md`. This file is kept for historical reference.
+
 ## Prerequisites
 
 ### Required Software

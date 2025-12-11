@@ -66,7 +66,7 @@ npm run seed
 5. Start the server:
 
 ```bash
-# Development
+# Development (default: http://localhost:3000/api)
 npm run dev
 
 # Production
@@ -129,23 +129,30 @@ After seeding the database:
 | JWT_SECRET     | Secret key for JWT   | (required)                    |
 | JWT_EXPIRES_IN | Token expiration     | 7d                            |
 
-## Database Schema
+## Database Schema (Overview)
 
-### Users
+### Users (`users`)
 
-- id, email, password, name, role, phone, address, position, community, profile_image
+- `id`, `email`, `password`, `name`, `role`, `phone`, `address`, `position`, `community`, `profile_image`, `created_at`, `updated_at`
 
-### Maintenance Requests
+### Maintenance Requests (`maintenance_requests`)
 
-- id, user_id, type, description, unit, address, priority, status, assigned_technician, dates
+- `id` (string, e.g. `REQ-<timestamp>`),
+- `user_id` (FK to `users.id`),
+- `type`, `description`, `unit`, `address`,
+- `priority` (`High`, `Medium`, `Low`),
+- `status` (`pending`, `in-progress`, `completed`),
+- `assigned_technician`,
+- `technician_notes`, `completion_notes`, `completed_date`,
+- `created_at`, `updated_at`
 
-### Messages
+### Messages (`messages`)
 
-- id, request_id, sender, message, timestamp
+- `id`, `request_id` (FK to `maintenance_requests.id`), `sender` (`admin` or `homeowner`), `message`, `created_at`
 
-### Notifications
+### Notifications (`notifications`)
 
-- id, user_id, type, title, message, is_read, timestamp
+- `id`, `user_id` (FK to `users.id`), `type`, `title`, `message`, `is_read`, `created_at`
 
 ## Development
 

@@ -49,9 +49,11 @@ const createTables = async () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         request_id TEXT NOT NULL,
         sender TEXT NOT NULL CHECK(sender IN ('admin', 'homeowner')),
+        sender_id INTEGER NOT NULL,
         message TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (request_id) REFERENCES maintenance_requests(id)
+        FOREIGN KEY (request_id) REFERENCES maintenance_requests(id),
+        FOREIGN KEY (sender_id) REFERENCES users(id)
       )
     `);
 

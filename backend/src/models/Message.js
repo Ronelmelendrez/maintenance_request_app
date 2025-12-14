@@ -1,13 +1,13 @@
 const db = require("../database/connection");
 
 class Message {
-  static async create({ request_id, sender, message }) {
+  static async create({ request_id, sender, sender_id, message }) {
     const result = await db.run(
       `
-      INSERT INTO messages (request_id, sender, message, created_at)
-      VALUES (?, ?, ?, datetime('now', 'localtime'))
+      INSERT INTO messages (request_id, sender, sender_id, message, created_at)
+      VALUES (?, ?, ?, ?, datetime('now', 'localtime'))
     `,
-      [request_id, sender, message]
+      [request_id, sender, sender_id, message]
     );
 
     return this.findById(result.id);
@@ -21,21 +21,11 @@ class Message {
     const messages = await db.all(
       `SELECT 
         m.*,
-        CASE 
-          WHEN m.sender = 'admin' THEN 
-            (SELECT name FROM users WHERE role = 'admin' LIMIT 1)
-          ELSE 
-            (SELECT name FROM users WHERE id = r.user_id)
-        END as sender_name,
-        CASE 
-          WHEN m.sender = 'admin' THEN 
-            (SELECT profile_image FROM users WHERE role = 'admin' LIMIT 1)
-          ELSE 
-            (SELECT profile_image FROM users WHERE id = r.user_id)
-        END as sender_avatar,
+        u.name as sender_name,
+        u.profile_image as sender_avatar,
         m.sender as sender_role
       FROM messages m
-      LEFT JOIN maintenance_requests r ON m.request_id = r.id
+      LEFT JOIN users u ON m.sender_id = u.id
       WHERE m.request_id = ? 
       ORDER BY m.created_at ASC`,
       [request_id]

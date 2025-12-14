@@ -21,6 +21,7 @@ const messageController = {
       const newMessage = await Message.create({
         request_id,
         sender: req.user.role,
+        sender_id: req.user.id,
         message,
       });
 
